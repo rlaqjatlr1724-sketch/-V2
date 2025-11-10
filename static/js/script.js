@@ -168,7 +168,7 @@ async function uploadFile(file, index, total) {
             throw new Error(uploadData.error || '업로드 실패');
         }
 
-        const fileId = uploadData.file.file_id;
+        const fileId = uploadData.file_id;
 
         // 업로드 성공 표시
         statusItem.querySelector('.status-message').textContent = '업로드 완료, 스토어에 임포트 중...';
