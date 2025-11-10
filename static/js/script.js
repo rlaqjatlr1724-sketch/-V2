@@ -273,10 +273,10 @@ function renderFiles() {
     }
 
     filesList.innerHTML = state.files.map(file => {
-        const sizeInMB = (file.bytes / (1024 * 1024)).toFixed(2);
-        const fileName = file.filename || file.name;
-        const date = new Date(file.created_at * 1000).toLocaleDateString('ko-KR');
-        const fileId = file.id;
+        const sizeInMB = (file.size_bytes / (1024 * 1024)).toFixed(2);
+        const fileName = file.display_name;
+        const date = new Date(file.create_time).toLocaleDateString('ko-KR');
+        const fileId = file.file_id;
 
         return `
             <div class="file-card">
