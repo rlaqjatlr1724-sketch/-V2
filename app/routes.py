@@ -373,3 +373,99 @@ def preview_file(file_id):
     except Exception as e:
         logger.error(f'파일 미리보기 중 오류 발생: {str(e)}', exc_info=True)
         return jsonify({'success': False, 'error': str(e)}), 500
+
+# ==================== FileStore Direct Upload ====================
+
+@bp.route('/api/stores/upload', methods=['POST'])
+def upload_to_store():
+    """FileStore에 파일 직접 업로드 (uploadToFileSearchStore)"""
+    logger = get_logger()
+    client_ip = request.remote_addr
+
+    try:
+        logger.info(f'FileStore 직접 업로드 요청 - IP: {client_ip}')
+
+        # 요청 데이터 검증
+        if 'file' not in request.files:
+            logger.warning(f'파일 없음 - IP: {client_ip}')
+            return jsonify({'success': False, 'error': 'No file provided'}), 400
+
+        file = request.files['file']
+        store_name = request.form.get('store_name', '').strip()
+
+        if not file or not store_name:
+            logger.warning(f'파일 또는 스토어 이름 누락 - IP: {client_ip}')
+            return jsonify({'success': False, 'error': 'File and store name are required'}), 400
+
+        if not allowed_file(file.filename):
+            logger.warning(f'지원하지 않는 파일 형식 - 파일명: {file.filename} - IP: {client_ip}')
+            return jsonify({'success': False, 'error': 'File type not allowed'}), 400
+
+        # 임시 파일에 저장
+        with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(file.filename)[1]) as tmp_file:
+            file.save(tmp_file.name)
+            tmp_file_path = tmp_file.name
+
+        try:
+            logger.debug(f'FileStore 업로드 시도 - 파일: {file.filename} - 스토어: {store_name} - IP: {client_ip}')
+
+            gemini = GeminiClient(current_app.config['GEMINI_API_KEY'])
+            result = gemini.upload_and_import_to_store(
+                file_path=tmp_file_path,
+                store_name=store_name,
+                display_name=file.filename
+            )
+
+            if result['success']:
+                logger.info(f'FileStore 업로드 성공 - 파일: {file.filename} - 스토어: {store_name} - IP: {client_ip}')
+                return jsonify(result), 201
+            else:
+                logger.error(f'FileStore 업로드 실패 - 파일: {file.filename} - 에러: {result.get("error")} - IP: {client_ip}')
+                return jsonify(result), 400
+
+        finally:
+            # 임시 파일 삭제
+            if os.path.exists(tmp_file_path):
+                os.remove(tmp_file_path)
+
+    except Exception as e:
+        logger.error(f'FileStore 업로드 중 예외 발생 - IP: {client_ip} - 에러: {str(e)}', exc_info=True)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# ==================== File Import to Store ====================
+
+@bp.route('/api/files/import', methods=['POST'])
+def import_file_to_store():
+    """Files API의 파일을 FileStore로 import"""
+    logger = get_logger()
+    client_ip = request.remote_addr
+
+    try:
+        logger.info(f'파일 import 요청 - IP: {client_ip}')
+
+        data = request.get_json()
+        file_id = data.get('file_id', '').strip()
+        store_name = data.get('store_name', '').strip()
+
+        if not file_id or not store_name:
+            logger.warning(f'파일 ID 또는 스토어 이름 누락 - IP: {client_ip}')
+            return jsonify({'success': False, 'error': 'File ID and store name are required'}), 400
+
+        logger.debug(f'파일 import 시도 - 파일: {file_id} - 스토어: {store_name} - IP: {client_ip}')
+
+        gemini = GeminiClient(current_app.config['GEMINI_API_KEY'])
+        result = gemini.import_file_to_store(
+            file_id=file_id,
+            store_name=store_name
+        )
+
+        if result['success']:
+            logger.info(f'파일 import 성공 - 파일: {file_id} - 스토어: {store_name} - IP: {client_ip}')
+            return jsonify(result), 201
+        else:
+            logger.error(f'파일 import 실패 - 파일: {file_id} - 에러: {result.get("error")} - IP: {client_ip}')
+            return jsonify(result), 400
+
+    except Exception as e:
+        logger.error(f'파일 import 중 예외 발생 - IP: {client_ip} - 에러: {str(e)}', exc_info=True)
+        return jsonify({'success': False, 'error': str(e)}), 500

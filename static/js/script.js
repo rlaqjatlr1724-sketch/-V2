@@ -68,6 +68,25 @@ function setupEventListeners() {
             performSearch();
         }
     });
+
+    // Import 패널 버튼
+    const confirmImportBtn = document.getElementById('confirmImportBtn');
+    const cancelImportBtn = document.getElementById('cancelImportBtn');
+
+    if (confirmImportBtn) {
+        confirmImportBtn.addEventListener('click', confirmImportFile);
+    }
+    if (cancelImportBtn) {
+        cancelImportBtn.addEventListener('click', cancelImportPanel);
+    }
+
+    // FileStore 선택시 스토어 목록 업데이트
+    const storeSelectForUpload = document.getElementById('storeSelectForUpload');
+    if (storeSelectForUpload) {
+        storeSelectForUpload.addEventListener('change', () => {
+            // 선택된 스토어를 표시하기 위한 간단한 처리
+        });
+    }
 }
 
 // ============================================================================
@@ -284,6 +303,7 @@ function renderFiles() {
                     <div class="file-icon">${getFileIcon(fileName)}</div>
                     <div class="file-card-actions">
                         <button title="보기" onclick="previewFile('${fileId}', '${fileName}')">👁️</button>
+                        <button title="FileStore로 옮기기" onclick="showImportPanel('${fileId}', '${fileName}')">📤</button>
                         <button title="삭제" onclick="deleteFile('${fileId}', '${fileName}')">🗑️</button>
                     </div>
                 </div>
@@ -383,6 +403,7 @@ async function loadStores() {
             state.stores = data.stores;
             renderStores();
             renderStoresForSearch();
+            updateStoreSelects(); // FileStore 선택 드롭다운 업데이트
         } else {
             throw new Error(data.error);
         }
@@ -396,6 +417,27 @@ async function loadStores() {
                     <p>스토어 로드 실패: ${error.message}</p>
                 </div>
             `;
+        }
+    }
+}
+
+function updateStoreSelects() {
+    // FileStore 직접 업로드 선택
+    const storeSelectForUpload = document.getElementById('storeSelectForUpload');
+    if (storeSelectForUpload) {
+        const selectedValue = storeSelectForUpload.value; // 현재 선택값 유지
+        storeSelectForUpload.innerHTML = '<option value="">FileStore 선택...</option>';
+
+        state.stores.forEach(store => {
+            const option = document.createElement('option');
+            option.value = store.store_name;
+            option.textContent = store.display_name;
+            storeSelectForUpload.appendChild(option);
+        });
+
+        // 이전 선택값 복원
+        if (selectedValue) {
+            storeSelectForUpload.value = selectedValue;
         }
     }
 }
@@ -663,6 +705,198 @@ function renderSearchResult(result, citations) {
     }
 
     resultContent.innerHTML = html;
+}
+
+// ============================================================================
+// ============================================================================
+// FileStore 직접 업로드
+// ============================================================================
+document.addEventListener('DOMContentLoaded', () => {
+    // FileStore 업로드 영역 이벤트
+    const uploadToStoreArea = document.getElementById('uploadToStoreArea');
+    const fileInputForStore = document.getElementById('fileInputForStore');
+
+    if (uploadToStoreArea) {
+        uploadToStoreArea.addEventListener('click', () => fileInputForStore.click());
+        uploadToStoreArea.addEventListener('dragover', handleDragOver);
+        uploadToStoreArea.addEventListener('dragleave', handleDragLeave);
+        uploadToStoreArea.addEventListener('drop', (e) => handleDropForStore(e));
+        fileInputForStore.addEventListener('change', handleFileSelectForStore);
+    }
+});
+
+function handleDropForStore(e) {
+    handleDragLeave(e);
+    const files = e.dataTransfer.files;
+
+    if (files.length > 0) {
+        const store = document.getElementById('storeSelectForUpload').value;
+        if (!store) {
+            showToast('FileStore를 먼저 선택하세요', 'error');
+            return;
+        }
+
+        Array.from(files).forEach(file => {
+            uploadToFileSearchStore(file, store);
+        });
+    }
+}
+
+function handleFileSelectForStore(e) {
+    const store = document.getElementById('storeSelectForUpload').value;
+    if (!store) {
+        showToast('FileStore를 먼저 선택하세요', 'error');
+        return;
+    }
+
+    Array.from(e.target.files).forEach(file => {
+        uploadToFileSearchStore(file, store);
+    });
+}
+
+async function uploadToFileSearchStore(file, storeName) {
+    // 파일 검증
+    const validExtensions = ['pdf', 'txt', 'doc', 'docx', 'xlsx', 'xls', 'ppt', 'pptx', 'csv', 'json', 'xml', 'html'];
+    const ext = file.name.split('.').pop().toLowerCase();
+
+    if (!validExtensions.includes(ext)) {
+        showToast(`지원하지 않는 파일 형식입니다: ${file.name}`, 'error');
+        return;
+    }
+
+    const uploadProgress = document.getElementById('uploadToStoreProgress');
+    const uploadStatus = document.getElementById('uploadToStoreStatus');
+    const progressFill = document.getElementById('progressFillStore');
+    const uploadFileName = document.getElementById('uploadToStoreFileName');
+
+    uploadFileName.textContent = `${file.name} 업로드 중...`;
+    uploadProgress.style.display = 'block';
+    uploadStatus.innerHTML = '';
+
+    try {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('store_name', storeName);
+
+        const xhr = new XMLHttpRequest();
+
+        xhr.upload.addEventListener('progress', (e) => {
+            if (e.lengthComputable) {
+                const percentComplete = (e.loaded / e.total) * 100;
+                progressFill.style.width = percentComplete + '%';
+            }
+        });
+
+        xhr.addEventListener('load', () => {
+            if (xhr.status === 201) {
+                const response = JSON.parse(xhr.responseText);
+                showToast(`${file.name}이(가) FileStore에 업로드되었습니다`, 'success');
+                uploadStatus.innerHTML = `<div class="success-message">✅ ${file.name} 업로드 완료</div>`;
+
+                // 스토어 목록 새로고침
+                setTimeout(() => {
+                    loadStores();
+                    uploadProgress.style.display = 'none';
+                    uploadStatus.innerHTML = '';
+                }, 2000);
+            } else {
+                const error = JSON.parse(xhr.responseText);
+                showToast(`업로드 실패: ${error.error || 'Unknown error'}`, 'error');
+                uploadStatus.innerHTML = `<div class="error-message">❌ 업로드 실패: ${error.error}</div>`;
+            }
+        });
+
+        xhr.addEventListener('error', () => {
+            showToast('업로드 중 오류가 발생했습니다', 'error');
+            uploadStatus.innerHTML = '<div class="error-message">❌ 업로드 중 오류 발생</div>';
+        });
+
+        xhr.open('POST', '/api/stores/upload');
+        xhr.send(formData);
+
+    } catch (error) {
+        showToast(`에러: ${error.message}`, 'error');
+        uploadStatus.innerHTML = `<div class="error-message">❌ 에러: ${error.message}</div>`;
+    }
+}
+
+// ============================================================================
+// FileStore로 파일 옮기기
+// ============================================================================
+let selectedFileForImport = null;
+
+function showImportPanel(fileId, fileName) {
+    selectedFileForImport = {
+        file_id: fileId,
+        display_name: fileName
+    };
+
+    const importPanel = document.getElementById('importPanel');
+    importPanel.style.display = 'block';
+
+    // 스토어 목록 로드
+    const storeSelect = document.getElementById('storeSelectForImport');
+    storeSelect.innerHTML = '<option value="">FileStore 선택...</option>';
+
+    state.stores.forEach(store => {
+        const option = document.createElement('option');
+        option.value = store.store_name;
+        option.textContent = store.display_name;
+        storeSelect.appendChild(option);
+    });
+}
+
+function cancelImportPanel() {
+    document.getElementById('importPanel').style.display = 'none';
+    selectedFileForImport = null;
+}
+
+async function confirmImportFile() {
+    if (!selectedFileForImport) {
+        showToast('선택한 파일이 없습니다', 'error');
+        return;
+    }
+
+    const storeName = document.getElementById('storeSelectForImport').value;
+    if (!storeName) {
+        showToast('FileStore를 선택하세요', 'error');
+        return;
+    }
+
+    const importStatus = document.getElementById('importStatus');
+    importStatus.innerHTML = '<div class="loading" style="display: flex; align-items: center; gap: 10px;"><div class="spinner"></div><span>파일을 옮기는 중...</span></div>';
+
+    try {
+        const response = await fetch('/api/files/import', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                file_id: selectedFileForImport.file_id,
+                store_name: storeName
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showToast(`${selectedFileForImport.display_name}이(가) FileStore로 옮겨졌습니다`, 'success');
+            importStatus.innerHTML = `<div class="success-message">✅ 옮기기 완료</div>`;
+
+            setTimeout(() => {
+                document.getElementById('importPanel').style.display = 'none';
+                loadStores();
+                selectedFileForImport = null;
+            }, 2000);
+        } else {
+            showToast(`옮기기 실패: ${data.error || 'Unknown error'}`, 'error');
+            importStatus.innerHTML = `<div class="error-message">❌ 실패: ${data.error}</div>`;
+        }
+    } catch (error) {
+        showToast(`에러: ${error.message}`, 'error');
+        importStatus.innerHTML = `<div class="error-message">❌ 에러: ${error.message}</div>`;
+    }
 }
 
 // ============================================================================

@@ -881,3 +881,150 @@ body {
         font-size: 12px;
     }
 }
+
+/* FileStore 업로드 섹션 */
+.upload-to-store-section {
+    background-color: var(--bg-primary);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border-color);
+}
+
+.subsection-header {
+    margin-bottom: 15px;
+}
+
+.subsection-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.upload-to-store-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.upload-area-small {
+    border: 2px dashed var(--border-color);
+    border-radius: 12px;
+    padding: 30px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition);
+    background-color: var(--bg-secondary);
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.upload-area-small:hover {
+    border-color: var(--primary-color);
+    background-color: rgba(139, 92, 246, 0.05);
+}
+
+.upload-area-small.drag-over {
+    border-color: var(--primary-color);
+    background-color: rgba(139, 92, 246, 0.1);
+}
+
+.upload-area-small .upload-icon {
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.upload-area-small p {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin: 0;
+}
+
+/* Import 패널 */
+.import-panel {
+    background-color: var(--bg-primary);
+    border: 2px solid var(--primary-color);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-md);
+}
+
+.import-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.import-header h3 {
+    margin: 0;
+    color: var(--primary-color);
+    font-size: 16px;
+}
+
+.import-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.import-controls select {
+    flex: 1;
+}
+
+.import-controls .btn {
+    flex-shrink: 0;
+}
+
+/* 성공/에러 메시지 */
+.success-message {
+    color: var(--success-color);
+    padding: 10px 15px;
+    background-color: rgba(16, 185, 129, 0.1);
+    border-radius: 8px;
+    border-left: 4px solid var(--success-color);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.error-message {
+    color: var(--danger-color);
+    padding: 10px 15px;
+    background-color: rgba(239, 68, 68, 0.1);
+    border-radius: 8px;
+    border-left: 4px solid var(--danger-color);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* 스피너 (로딩) */
+.loading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px;
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+}
+
+.spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid var(--border-color);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

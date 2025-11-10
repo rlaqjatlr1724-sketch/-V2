@@ -80,6 +80,21 @@
                     <button class="btn btn-secondary" id="refreshFilesBtn">새로고침</button>
                 </div>
 
+                <!-- FileStore로 옮기기 패널 -->
+                <div id="importPanel" class="import-panel" style="display: none;">
+                    <div class="import-header">
+                        <h3>선택한 파일을 FileStore로 옮기기</h3>
+                        <button class="btn btn-secondary btn-sm" id="cancelImportBtn">취소</button>
+                    </div>
+                    <div class="import-controls">
+                        <select id="storeSelectForImport" class="input-field">
+                            <option value="">FileStore 선택...</option>
+                        </select>
+                        <button class="btn btn-primary" id="confirmImportBtn">옮기기</button>
+                    </div>
+                    <div id="importStatus" class="upload-status"></div>
+                </div>
+
                 <div id="filesList" class="files-grid">
                     <div class="empty-state">
                         <div class="empty-icon">📭</div>
@@ -93,6 +108,32 @@
                 <div class="section-header">
                     <h1>FileStore 관리</h1>
                     <p>현재 프로젝트의 FileStore 정보</p>
+                </div>
+
+                <!-- FileStore에 직접 업로드 -->
+                <div class="upload-to-store-section">
+                    <div class="subsection-header">
+                        <h3>FileStore에 파일 업로드</h3>
+                    </div>
+                    <div class="upload-to-store-form">
+                        <select id="storeSelectForUpload" class="input-field">
+                            <option value="">FileStore 선택...</option>
+                        </select>
+                        <div class="upload-area-small" id="uploadToStoreArea">
+                            <div class="upload-icon">📄</div>
+                            <p>파일을 드래그하거나 클릭하세요</p>
+                            <input type="file" id="fileInputForStore" style="display: none;" accept=".pdf,.txt,.doc,.docx,.xlsx,.xls,.ppt,.pptx,.csv,.json,.xml,.html" multiple>
+                        </div>
+                        <div id="uploadToStoreProgress" class="upload-progress" style="display: none;">
+                            <div class="progress-item">
+                                <span id="uploadToStoreFileName"></span>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="progressFillStore"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="uploadToStoreStatus" class="upload-status"></div>
+                    </div>
                 </div>
 
                 <div id="storesList" class="stores-container">
