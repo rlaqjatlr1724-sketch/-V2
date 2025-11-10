@@ -44,7 +44,7 @@ class GeminiClient:
             self.logger.info(f"Creating FileSearchStore with display_name: {display_name}")
 
             store = self.client.file_search_stores.create(
-                display_name=display_name
+                config={'display_name': display_name}
             )
 
             self.logger.info(f"FileSearchStore created successfully: {store.name}")
