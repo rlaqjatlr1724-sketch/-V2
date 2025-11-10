@@ -1,5 +1,7 @@
 # Gemini File Search UI
 
+**언어:** [English](README.md) | [한국어](README.ko.md) | [日本語](README.ja.md) | [中文](README.zh.md)
+
 Google의 Gemini API File Search 기능을 사용한 의미론적 검색 및 문서 관리를 위한 현대적 웹 애플리케이션입니다.
 
 ## 기능

@@ -1,5 +1,7 @@
 # Gemini 文件搜索 UI
 
+**语言:** [English](README.md) | [한국어](README.ko.md) | [日本語](README.ja.md) | [中文](README.zh.md)
+
 一个现代化的网络应用，利用 Google 的 Gemini API 文件搜索功能实现语义搜索和文档管理。
 
 ## 功能特性
