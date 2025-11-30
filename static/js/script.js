@@ -6,7 +6,304 @@ const state = {
     stores: [],
     selectedStoreId: null,
     currentTab: 'upload',
-    conversationHistory: []
+    conversationHistory: [],
+    currentLanguage: 'ko'
+};
+
+// ============================================================================
+// Translations
+// ============================================================================
+const translations = {
+    ko: {
+        // Navigation
+        'nav_chat_search': 'Chat Search',
+        'nav_map_guide': 'Map Guide',
+        'nav_nearest_facility': 'Nearest Facility',
+
+        // Section Headers
+        'company_name': '한국체육산업개발(주)',
+        'wayfinding_header': '올림픽공원 길찾기',
+        'wayfinding_subtitle': '지도를 클릭하여 출발지와 도착지를 선택하세요 (파란색: 출발, 초록색: 도착)',
+        'facility_header': '가장 가까운 시설물 찾기',
+        'facility_subtitle': '지도에서 현재 위치를 클릭하면 가장 가까운 시설물로 안내합니다',
+
+        // Mascot Greeting
+        'mascot_greeting': '안녕하세요! 올림픽 공원 AI 챗봇 올공이 입니다!',
+        'mascot_warning': 'AI assistant는 잘못된 답변을 제공할 수 있습니다. 자세한 문의는 고객센터를 이용하여 주세요.',
+        'mascot_contact': '종합안내 : 02-410-1114',
+
+        // Buttons
+        'btn_select_all': 'Select All',
+        'btn_clear_chat': 'Clear Chat',
+        'btn_send': 'Send',
+        'btn_reset': '초기화',
+        'btn_close': '닫기',
+
+        // Search Panel
+        'select_filestore': 'Select FileStore to Search',
+        'conversation': 'Conversation',
+        'no_conversation': 'No conversation yet. Start by asking a question!',
+        'ask_question': 'Ask a question about your documents...',
+        'searching': 'Searching...',
+
+        // Map Guide
+        'map_title': '올림픽공원 지도',
+        'first_click': '첫 번째 클릭: 출발지',
+        'second_click': '두 번째 클릭: 도착지',
+        'click_start': '지도를 클릭하여 출발지를 선택하세요',
+        'click_destination': '지도를 클릭하여 도착지를 선택하세요',
+        'calculating': '경로를 계산하는 중...',
+        'path_found': '경로를 찾았습니다! 초기화하여 다시 시작할 수 있습니다.',
+        'path_result': '경로 결과',
+        'departure': '출발:',
+        'arrival': '도착:',
+        'distance': '거리:',
+
+        // Facility Search
+        'facility_type': '시설물 종류',
+        'toilet': '화장실',
+        'store': '매점(편의점)',
+        'water': '음수대',
+        'parking': '주차 사전무인정산기',
+        'click_location': '지도를 클릭하여 현재 위치를 선택하세요',
+        'finding_facility': '가장 가까운 시설물을 찾는 중...',
+        'facility_found': '가장 가까운 시설물로의 경로를 찾았습니다!',
+
+        // Empty States
+        'no_filestores': 'No FileStores available'
+    },
+    en: {
+        // Navigation
+        'nav_chat_search': 'Chat Search',
+        'nav_map_guide': 'Map Guide',
+        'nav_nearest_facility': 'Nearest Facility',
+
+        // Section Headers
+        'company_name': 'Korea Sports Industry Development Co., Ltd.',
+        'wayfinding_header': 'Olympic Park Wayfinding',
+        'wayfinding_subtitle': 'Click on the map to select start and destination (Blue: Start, Green: Destination)',
+        'facility_header': 'Find Nearest Facility',
+        'facility_subtitle': 'Click your current location on the map to find the nearest facility',
+
+        // Mascot Greeting
+        'mascot_greeting': 'Hello! I am Olgongi, the Olympic Park AI Chatbot!',
+        'mascot_warning': 'AI assistant may provide incorrect answers. Please contact customer service for detailed inquiries.',
+        'mascot_contact': 'General Information: 02-410-1114',
+
+        // Buttons
+        'btn_select_all': 'Select All',
+        'btn_clear_chat': 'Clear Chat',
+        'btn_send': 'Send',
+        'btn_reset': 'Reset',
+        'btn_close': 'Close',
+
+        // Search Panel
+        'select_filestore': 'Select FileStore to Search',
+        'conversation': 'Conversation',
+        'no_conversation': 'No conversation yet. Start by asking a question!',
+        'ask_question': 'Ask a question about your documents...',
+        'searching': 'Searching...',
+
+        // Map Guide
+        'map_title': 'Olympic Park Map',
+        'first_click': 'First Click: Start',
+        'second_click': 'Second Click: Destination',
+        'click_start': 'Click on the map to select start location',
+        'click_destination': 'Click on the map to select destination',
+        'calculating': 'Calculating route...',
+        'path_found': 'Route found! Reset to start over.',
+        'path_result': 'Route Result',
+        'departure': 'Start:',
+        'arrival': 'Destination:',
+        'distance': 'Distance:',
+
+        // Facility Search
+        'facility_type': 'Facility Type',
+        'toilet': 'Restroom',
+        'store': 'Store (Convenience)',
+        'water': 'Water Fountain',
+        'parking': 'Parking Pre-Payment Kiosk',
+        'click_location': 'Click on the map to select your location',
+        'finding_facility': 'Finding nearest facility...',
+        'facility_found': 'Found route to nearest facility!',
+
+        // Empty States
+        'no_filestores': 'No FileStores available'
+    },
+    zh: {
+        // Navigation
+        'nav_chat_search': 'Chat Search',
+        'nav_map_guide': 'Map Guide',
+        'nav_nearest_facility': 'Nearest Facility',
+
+        // Section Headers
+        'company_name': '韩国体育产业开发株式会社',
+        'wayfinding_header': '奥林匹克公园路线导航',
+        'wayfinding_subtitle': '点击地图选择起点和终点（蓝色：起点，绿色：终点）',
+        'facility_header': '查找最近设施',
+        'facility_subtitle': '在地图上点击您的当前位置以查找最近的设施',
+
+        // Mascot Greeting
+        'mascot_greeting': '您好！我是奥林匹克公园AI聊天机器人奥公！',
+        'mascot_warning': 'AI助手可能提供不正确的答案。详细咨询请联系客服中心。',
+        'mascot_contact': '综合咨询：02-410-1114',
+
+        // Buttons
+        'btn_select_all': 'Select All',
+        'btn_clear_chat': 'Clear Chat',
+        'btn_send': 'Send',
+        'btn_reset': '重置',
+        'btn_close': '关闭',
+
+        // Search Panel
+        'select_filestore': 'Select FileStore to Search',
+        'conversation': 'Conversation',
+        'no_conversation': 'No conversation yet. Start by asking a question!',
+        'ask_question': 'Ask a question about your documents...',
+        'searching': 'Searching...',
+
+        // Map Guide
+        'map_title': '奥林匹克公园地图',
+        'first_click': '第一次点击：起点',
+        'second_click': '第二次点击：终点',
+        'click_start': '点击地图选择起点',
+        'click_destination': '点击地图选择终点',
+        'calculating': '正在计算路线...',
+        'path_found': '找到路线！重置以重新开始。',
+        'path_result': '路线结果',
+        'departure': '起点：',
+        'arrival': '终点：',
+        'distance': '距离：',
+
+        // Facility Search
+        'facility_type': '设施类型',
+        'toilet': '洗手间',
+        'store': '商店（便利店）',
+        'water': '饮水机',
+        'parking': '停车预付费机',
+        'click_location': '点击地图选择您的位置',
+        'finding_facility': '正在查找最近的设施...',
+        'facility_found': '找到前往最近设施的路线！',
+
+        // Empty States
+        'no_filestores': 'No FileStores available'
+    },
+    ja: {
+        // Navigation
+        'nav_chat_search': 'Chat Search',
+        'nav_map_guide': 'Map Guide',
+        'nav_nearest_facility': 'Nearest Facility',
+
+        // Section Headers
+        'company_name': '韓国体育産業開発株式会社',
+        'wayfinding_header': 'オリンピック公園道案内',
+        'wayfinding_subtitle': '地図をクリックして出発地と目的地を選択してください（青：出発、緑：目的地）',
+        'facility_header': '最寄りの施設を検索',
+        'facility_subtitle': '地図上で現在地をクリックして最寄りの施設をご案内します',
+
+        // Mascot Greeting
+        'mascot_greeting': 'こんにちは！オリンピック公園AIチャットボットのオルゴンイです！',
+        'mascot_warning': 'AIアシスタントは誤った回答を提供する可能性があります。詳細なお問い合わせはカスタマーサービスをご利用ください。',
+        'mascot_contact': '総合案内：02-410-1114',
+
+        // Buttons
+        'btn_select_all': 'Select All',
+        'btn_clear_chat': 'Clear Chat',
+        'btn_send': 'Send',
+        'btn_reset': 'リセット',
+        'btn_close': '閉じる',
+
+        // Search Panel
+        'select_filestore': 'Select FileStore to Search',
+        'conversation': 'Conversation',
+        'no_conversation': 'No conversation yet. Start by asking a question!',
+        'ask_question': 'Ask a question about your documents...',
+        'searching': 'Searching...',
+
+        // Map Guide
+        'map_title': 'オリンピック公園地図',
+        'first_click': '最初のクリック：出発地',
+        'second_click': '2回目のクリック：目的地',
+        'click_start': '地図をクリックして出発地を選択',
+        'click_destination': '地図をクリックして目的地を選択',
+        'calculating': 'ルートを計算中...',
+        'path_found': 'ルートが見つかりました！リセットして再開できます。',
+        'path_result': 'ルート結果',
+        'departure': '出発：',
+        'arrival': '目的地：',
+        'distance': '距離：',
+
+        // Facility Search
+        'facility_type': '施設タイプ',
+        'toilet': 'トイレ',
+        'store': '売店（コンビニ）',
+        'water': '飲水台',
+        'parking': '駐車場事前精算機',
+        'click_location': '地図をクリックして現在地を選択',
+        'finding_facility': '最寄りの施設を検索中...',
+        'facility_found': '最寄りの施設へのルートを見つけました！',
+
+        // Empty States
+        'no_filestores': 'No FileStores available'
+    },
+    vi: {
+        // Navigation
+        'nav_chat_search': 'Chat Search',
+        'nav_map_guide': 'Map Guide',
+        'nav_nearest_facility': 'Nearest Facility',
+
+        // Section Headers
+        'company_name': 'Công ty Phát triển Công nghiệp Thể thao Hàn Quốc',
+        'wayfinding_header': 'Chỉ đường Công viên Olympic',
+        'wayfinding_subtitle': 'Nhấp vào bản đồ để chọn điểm bắt đầu và đích (Xanh dương: Bắt đầu, Xanh lá: Đích)',
+        'facility_header': 'Tìm Cơ sở Gần nhất',
+        'facility_subtitle': 'Nhấp vào vị trí hiện tại của bạn trên bản đồ để tìm cơ sở gần nhất',
+
+        // Mascot Greeting
+        'mascot_greeting': 'Xin chào! Tôi là Olgongi, Chatbot AI Công viên Olympic!',
+        'mascot_warning': 'Trợ lý AI có thể cung cấp câu trả lời không chính xác. Vui lòng liên hệ dịch vụ khách hàng để biết thêm chi tiết.',
+        'mascot_contact': 'Thông tin chung: 02-410-1114',
+
+        // Buttons
+        'btn_select_all': 'Select All',
+        'btn_clear_chat': 'Clear Chat',
+        'btn_send': 'Send',
+        'btn_reset': 'Đặt lại',
+        'btn_close': 'Đóng',
+
+        // Search Panel
+        'select_filestore': 'Select FileStore to Search',
+        'conversation': 'Conversation',
+        'no_conversation': 'No conversation yet. Start by asking a question!',
+        'ask_question': 'Ask a question about your documents...',
+        'searching': 'Searching...',
+
+        // Map Guide
+        'map_title': 'Bản đồ Công viên Olympic',
+        'first_click': 'Nhấp đầu tiên: Bắt đầu',
+        'second_click': 'Nhấp thứ hai: Đích',
+        'click_start': 'Nhấp vào bản đồ để chọn vị trí bắt đầu',
+        'click_destination': 'Nhấp vào bản đồ để chọn đích',
+        'calculating': 'Đang tính toán tuyến đường...',
+        'path_found': 'Đã tìm thấy tuyến đường! Đặt lại để bắt đầu lại.',
+        'path_result': 'Kết quả Tuyến đường',
+        'departure': 'Bắt đầu:',
+        'arrival': 'Đích:',
+        'distance': 'Khoảng cách:',
+
+        // Facility Search
+        'facility_type': 'Loại Cơ sở',
+        'toilet': 'Nhà vệ sinh',
+        'store': 'Cửa hàng (Tiện lợi)',
+        'water': 'Vòi nước uống',
+        'parking': 'Máy Thanh toán Trước Bãi đỗ xe',
+        'click_location': 'Nhấp vào bản đồ để chọn vị trí của bạn',
+        'finding_facility': 'Đang tìm cơ sở gần nhất...',
+        'facility_found': 'Đã tìm thấy tuyến đường đến cơ sở gần nhất!',
+
+        // Empty States
+        'no_filestores': 'No FileStores available'
+    }
 };
 
 // ============================================================================
@@ -1061,6 +1358,59 @@ function showToast(message, type = 'info') {
 }
 
 // ============================================================================
+// Multi-language Support
+// ============================================================================
+function changeLanguage(lang) {
+    if (!translations[lang]) {
+        console.error(`Language ${lang} not found`);
+        return;
+    }
+
+    state.currentLanguage = lang;
+
+    // Update all elements with data-i18n attributes
+    document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        if (translations[lang][key]) {
+            // Handle different element types
+            if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+                element.placeholder = translations[lang][key];
+            } else {
+                element.textContent = translations[lang][key];
+            }
+        }
+    });
+
+    // Save language preference
+    localStorage.setItem('preferredLanguage', lang);
+}
+
+// Load saved language preference
+function loadLanguagePreference() {
+    const savedLang = localStorage.getItem('preferredLanguage') || 'ko';
+    const languageSelect = document.getElementById('languageSelect');
+
+    if (languageSelect) {
+        languageSelect.value = savedLang;
+        changeLanguage(savedLang);
+    }
+}
+
+// Setup language selector
+document.addEventListener('DOMContentLoaded', () => {
+    const languageSelect = document.getElementById('languageSelect');
+
+    if (languageSelect) {
+        languageSelect.addEventListener('change', (e) => {
+            changeLanguage(e.target.value);
+        });
+
+        // Load saved preference on page load
+        loadLanguagePreference();
+    }
+});
+
+// ============================================================================
 // Wayfinding (길찾기) Functions - Map Click Based
 // ============================================================================
 
@@ -1119,7 +1469,8 @@ if (resetFacilityMapBtn) {
 function resetMapClickState() {
     mapClickState.startCoords = null;
     mapClickState.endCoords = null;
-    mapClickStatus.textContent = '지도를 클릭하여 출발지를 선택하세요';
+    const lang = state.currentLanguage || 'ko';
+    mapClickStatus.textContent = translations[lang]['click_start'];
     mapClickStatus.style.color = 'var(--text-secondary)';
     pathResult.style.display = 'none';
     if (initialMap) initialMap.style.display = 'block';
@@ -1128,7 +1479,8 @@ function resetMapClickState() {
 // 지도 초기화 (Facility)
 function resetFacilityMapClickState() {
     mapClickState.startCoords = null;
-    facilityMapStatus.textContent = '지도를 클릭하여 현재 위치를 선택하세요';
+    const lang = state.currentLanguage || 'ko';
+    facilityMapStatus.textContent = translations[lang]['click_location'];
     facilityMapStatus.style.color = 'var(--text-secondary)';
     facilityPathResult.style.display = 'none';
     if (initialFacilityMap) initialFacilityMap.style.display = 'block';
@@ -1146,21 +1498,23 @@ async function handleMapClick(event) {
     const actualX = x * scaleX;
     const actualY = y * scaleY;
 
+    const lang = state.currentLanguage || 'ko';
+
     if (mapClickState.mode === 'wayfinding') {
         if (!mapClickState.startCoords) {
             // 출발지 설정
             mapClickState.startCoords = { x: actualX, y: actualY };
-            mapClickStatus.textContent = '지도를 클릭하여 도착지를 선택하세요';
+            mapClickStatus.textContent = translations[lang]['click_destination'];
             mapClickStatus.style.color = 'var(--success-color)';
         } else if (!mapClickState.endCoords) {
             // 도착지 설정 및 경로 찾기
             mapClickState.endCoords = { x: actualX, y: actualY };
-            mapClickStatus.textContent = '경로를 계산하는 중...';
+            mapClickStatus.textContent = translations[lang]['calculating'];
             await findPathFromCoords();
         }
     } else if (mapClickState.mode === 'facility') {
         // 현재 위치에서 가장 가까운 시설물 찾기
-        facilityMapStatus.textContent = '가장 가까운 시설물을 찾는 중...';
+        facilityMapStatus.textContent = translations[lang]['finding_facility'];
         await findNearestFacility(actualX, actualY);
     }
 }
@@ -1189,6 +1543,8 @@ async function findPathFromCoords() {
         const data = await response.json();
         pathLoading.style.display = 'none';
 
+        const lang = state.currentLanguage || 'ko';
+
         if (data.success) {
             pathDistance.textContent = `${data.distance.toFixed(2)} 픽셀`;
             pathImage.src = `data:image/png;base64,${data.image}`;
@@ -1197,10 +1553,10 @@ async function findPathFromCoords() {
             if (initialMap) initialMap.style.display = 'none';
             pathResult.style.display = 'block';
 
-            mapClickStatus.textContent = '경로를 찾았습니다! 초기화하여 다시 시작할 수 있습니다.';
+            mapClickStatus.textContent = translations[lang]['path_found'];
             mapClickStatus.style.color = 'var(--success-color)';
 
-            showToast('경로를 찾았습니다!', 'success');
+            showToast(translations[lang]['path_found'], 'success');
         } else {
             mapClickStatus.textContent = `실패: ${data.message}`;
             mapClickStatus.style.color = 'var(--danger-color)';
@@ -1250,6 +1606,8 @@ async function findNearestFacility(x, y) {
         const data = await response.json();
         facilityPathLoading.style.display = 'none';
 
+        const lang = state.currentLanguage || 'ko';
+
         if (data.success) {
             facilityPathDistance.textContent = `${data.distance.toFixed(2)} 픽셀`;
             facilityPathImage.src = `data:image/png;base64,${data.image}`;
@@ -1258,10 +1616,10 @@ async function findNearestFacility(x, y) {
             if (initialFacilityMap) initialFacilityMap.style.display = 'none';
             facilityPathResult.style.display = 'block';
 
-            facilityMapStatus.textContent = '가장 가까운 시설물로의 경로를 찾았습니다!';
+            facilityMapStatus.textContent = translations[lang]['facility_found'];
             facilityMapStatus.style.color = 'var(--success-color)';
 
-            showToast('가장 가까운 시설물을 찾았습니다!', 'success');
+            showToast(translations[lang]['facility_found'], 'success');
 
             // 지도 클릭 핸들러 추가 (결과 이미지에)
             if (facilityPathImage) {

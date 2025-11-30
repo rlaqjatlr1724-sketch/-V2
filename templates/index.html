@@ -18,20 +18,32 @@
                     </svg>
                     <span>케이스포앤코</span>
                 </div>
+
+                <!-- 언어 선택기 -->
+                <div class="language-selector">
+                    <label for="languageSelect" style="font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; display: block;">🌐 Language</label>
+                    <select id="languageSelect" class="input-field" style="font-size: 13px; padding: 8px;">
+                        <option value="ko">한국어</option>
+                        <option value="en">English</option>
+                        <option value="zh">中文</option>
+                        <option value="ja">日本語</option>
+                        <option value="vi">Tiếng Việt</option>
+                    </select>
+                </div>
             </div>
 
             <nav class="sidebar-nav">
                 <button class="nav-item active" data-tab="search">
                     <span class="icon">🔍</span>
-                    <span class="label">Chat Search</span>
+                    <span class="label" data-i18n="nav_chat_search">Chat Search</span>
                 </button>
                 <button class="nav-item" data-tab="wayfinding">
                     <span class="icon">🗺️</span>
-                    <span class="label">Map Guide</span>
+                    <span class="label" data-i18n="nav_map_guide">Map Guide</span>
                 </button>
                 <button class="nav-item" data-tab="facility">
                     <span class="icon">🚻</span>
-                    <span class="label">Nearest Facility</span>
+                    <span class="label" data-i18n="nav_nearest_facility">Nearest Facility</span>
                 </button>
             </nav>
 
@@ -45,58 +57,58 @@
             <!-- Chat Search Tab -->
             <section id="search" class="tab-content active">
                 <div class="section-header">
-                    <h1>한국체육산업개발(주)</h1>
+                    <h1 data-i18n="company_name">한국체육산업개발(주)</h1>
                 </div>
 
                 <!-- Mascot Section -->
                 <div class="mascot-section">
                     <img src="{{ url_for('static', filename='images/mascot.png') }}" alt="Chatbot Mascot" class="mascot-image">
                     <div class="mascot-greeting">
-                        <h3>안녕하세요! 올림픽 공원 AI 챗봇 백호돌이 입니다!</h3>
-                        <p>AI assistant는 잘못된 답변을 제공할 수 있습니다. 자세한 문의는 고객센터를 이용하여 주세요.</p>
-                        <p>종합안내 : 02-410-1114</p>
+                        <h3 data-i18n="mascot_greeting">안녕하세요! 올림픽 공원 AI 챗봇 올공이 입니다!</h3>
+                        <p data-i18n="mascot_warning">AI assistant는 잘못된 답변을 제공할 수 있습니다. 자세한 문의는 고객센터를 이용하여 주세요.</p>
+                        <p data-i18n="mascot_contact">종합안내 : 02-410-1114</p>
                     </div>
                 </div>
 
                 <div class="search-container">
                     <div class="search-panel">
-                        <h3>Select FileStore to Search</h3>
+                        <h3 data-i18n="select_filestore">Select FileStore to Search</h3>
                         <div id="fileCheckboxList" class="file-checkbox-list">
                             <div class="empty-state">
-                                <p>No FileStores available</p>
+                                <p data-i18n="no_filestores">No FileStores available</p>
                             </div>
                         </div>
-                        <button class="btn btn-primary" id="selectAllBtn">Select All</button>
+                        <button class="btn btn-primary" id="selectAllBtn" data-i18n="btn_select_all">Select All</button>
                     </div>
 
                     <div class="chat-panel">
                         <div class="chat-header">
-                            <h3>Conversation</h3>
-                            <button class="btn btn-secondary btn-sm" id="clearChatBtn">Clear Chat</button>
+                            <h3 data-i18n="conversation">Conversation</h3>
+                            <button class="btn btn-secondary btn-sm" id="clearChatBtn" data-i18n="btn_clear_chat">Clear Chat</button>
                         </div>
                         <div id="chatHistory" class="chat-history">
                             <div class="empty-chat">
-                                <p>No conversation yet. Start by asking a question!</p>
+                                <p data-i18n="no_conversation">No conversation yet. Start by asking a question!</p>
                             </div>
                         </div>
                         <div class="chat-input-container">
-                            <textarea id="searchQuery" placeholder="Ask a question about your documents..." rows="3"></textarea>
-                            <button class="btn btn-primary" id="searchBtn">Send</button>
+                            <textarea id="searchQuery" placeholder="Ask a question about your documents..." data-i18n="ask_question" rows="3"></textarea>
+                            <button class="btn btn-primary" id="searchBtn" data-i18n="btn_send">Send</button>
                         </div>
                     </div>
                 </div>
 
                 <div id="searchLoading" class="loading" style="display: none;">
                     <div class="spinner"></div>
-                    <p>Searching...</p>
+                    <p data-i18n="searching">Searching...</p>
                 </div>
             </section>
 
             <!-- Wayfinding Tab -->
             <section id="wayfinding" class="tab-content">
                 <div class="section-header">
-                    <h1>🗺️ 올림픽공원 길찾기</h1>
-                    <p>지도를 클릭하여 출발지와 도착지를 선택하세요 (파란색: 출발, 초록색: 도착)</p>
+                    <h1 data-i18n="wayfinding_header">🗺️ 올림픽공원 길찾기</h1>
+                    <p data-i18n="wayfinding_subtitle">지도를 클릭하여 출발지와 도착지를 선택하세요 (파란색: 출발, 초록색: 도착)</p>
                 </div>
 
                 <div class="wayfinding-container">
@@ -104,17 +116,17 @@
                         <div class="map-click-guide">
                             <div class="guide-item">
                                 <span class="guide-icon" style="color: #007bff;">📍</span>
-                                <span>첫 번째 클릭: 출발지</span>
+                                <span data-i18n="first_click">첫 번째 클릭: 출발지</span>
                             </div>
                             <div class="guide-item">
                                 <span class="guide-icon" style="color: #28a745;">📍</span>
-                                <span>두 번째 클릭: 도착지</span>
+                                <span data-i18n="second_click">두 번째 클릭: 도착지</span>
                             </div>
                         </div>
-                        <button class="btn btn-secondary" id="resetMapBtn" style="width: 100%; margin-top: 12px;">
+                        <button class="btn btn-secondary" id="resetMapBtn" style="width: 100%; margin-top: 12px;" data-i18n="btn_reset">
                             초기화 🔄
                         </button>
-                        <div id="mapClickStatus" class="map-status" style="margin-top: 12px; padding: 12px; background: var(--bg-secondary); border-radius: 8px; text-align: center; font-size: 14px; color: var(--text-secondary);">
+                        <div id="mapClickStatus" class="map-status" style="margin-top: 12px; padding: 12px; background: var(--bg-secondary); border-radius: 8px; text-align: center; font-size: 14px; color: var(--text-secondary);" data-i18n="click_start">
                             지도를 클릭하여 출발지를 선택하세요
                         </div>
                     </div>
@@ -122,7 +134,7 @@
                     <!-- 초기 지도 표시 -->
                     <div id="initialMap" class="path-result">
                         <div class="result-header">
-                            <h3>올림픽공원 지도</h3>
+                            <h3 data-i18n="map_title">올림픽공원 지도</h3>
                         </div>
                         <div class="path-image-container">
                             <img id="initialMapImage" src="{{ url_for('static', filename='map/올공맵.png') }}" alt="올림픽공원 지도" style="width: 100%; border-radius: 8px; cursor: crosshair;">
@@ -131,20 +143,20 @@
 
                     <div id="pathResult" class="path-result" style="display: none;">
                         <div class="result-header">
-                            <h3 id="pathResultTitle">경로 결과</h3>
-                            <button class="btn btn-secondary btn-sm" id="closePathResultBtn">닫기</button>
+                            <h3 id="pathResultTitle" data-i18n="path_result">경로 결과</h3>
+                            <button class="btn btn-secondary btn-sm" id="closePathResultBtn" data-i18n="btn_close">닫기</button>
                         </div>
                         <div class="path-info">
                             <div class="info-item">
-                                <span class="info-label">출발:</span>
+                                <span class="info-label" data-i18n="departure">출발:</span>
                                 <span id="pathStartName" class="info-value"></span>
                             </div>
                             <div class="info-item">
-                                <span class="info-label">도착:</span>
+                                <span class="info-label" data-i18n="arrival">도착:</span>
                                 <span id="pathEndName" class="info-value"></span>
                             </div>
                             <div class="info-item">
-                                <span class="info-label">거리:</span>
+                                <span class="info-label" data-i18n="distance">거리:</span>
                                 <span id="pathDistance" class="info-value"></span>
                             </div>
                         </div>
@@ -155,7 +167,7 @@
 
                     <div id="pathLoading" class="loading" style="display: none;">
                         <div class="spinner"></div>
-                        <p>경로를 계산하는 중...</p>
+                        <p data-i18n="calculating">경로를 계산하는 중...</p>
                     </div>
                 </div>
             </section>
@@ -163,33 +175,33 @@
             <!-- Nearest Facility Tab -->
             <section id="facility" class="tab-content">
                 <div class="section-header">
-                    <h1>🚻 가장 가까운 시설물 찾기</h1>
-                    <p>지도에서 현재 위치를 클릭하면 가장 가까운 시설물로 안내합니다</p>
+                    <h1 data-i18n="facility_header">🚻 가장 가까운 시설물 찾기</h1>
+                    <p data-i18n="facility_subtitle">지도에서 현재 위치를 클릭하면 가장 가까운 시설물로 안내합니다</p>
                 </div>
 
                 <div class="wayfinding-container">
                     <div class="wayfinding-controls">
                         <div class="control-group">
-                            <label for="facilityType">🎯 시설물 종류</label>
+                            <label for="facilityType" data-i18n="facility_type">🎯 시설물 종류</label>
                             <select id="facilityType" class="input-field">
-                                <option value="toilet">🚻 화장실</option>
-                                <option value="store">🏪 매점(편의점)</option>
-                                <option value="water">💧 음수대</option>
-                                <option value="parking">🅿️ 주차 사전무인정산기</option>
+                                <option value="toilet" data-i18n="toilet">🚻 화장실</option>
+                                <option value="store" data-i18n="store">🏪 매점(편의점)</option>
+                                <option value="water" data-i18n="water">💧 음수대</option>
+                                <option value="parking" data-i18n="parking">🅿️ 주차 사전무인정산기</option>
                             </select>
                         </div>
 
                         <div class="facility-click-guide">
-                            <p style="font-size: 14px; color: var(--text-secondary); margin-top: 12px;">
+                            <p style="font-size: 14px; color: var(--text-secondary); margin-top: 12px;" data-i18n="click_location">
                                 📍 지도에서 현재 위치를 클릭하세요
                             </p>
                         </div>
 
-                        <button class="btn btn-secondary" id="resetFacilityMapBtn" style="width: 100%; margin-top: 12px;">
+                        <button class="btn btn-secondary" id="resetFacilityMapBtn" style="width: 100%; margin-top: 12px;" data-i18n="btn_reset">
                             초기화 🔄
                         </button>
 
-                        <div id="facilityMapStatus" class="map-status" style="margin-top: 12px; padding: 12px; background: var(--bg-secondary); border-radius: 8px; text-align: center; font-size: 14px; color: var(--text-secondary);">
+                        <div id="facilityMapStatus" class="map-status" style="margin-top: 12px; padding: 12px; background: var(--bg-secondary); border-radius: 8px; text-align: center; font-size: 14px; color: var(--text-secondary);" data-i18n="click_location">
                             지도를 클릭하여 현재 위치를 선택하세요
                         </div>
                     </div>
@@ -197,7 +209,7 @@
                     <!-- 초기 지도 표시 -->
                     <div id="initialFacilityMap" class="path-result">
                         <div class="result-header">
-                            <h3>올림픽공원 지도</h3>
+                            <h3 data-i18n="map_title">올림픽공원 지도</h3>
                         </div>
                         <div class="path-image-container">
                             <img id="initialFacilityMapImage" src="{{ url_for('static', filename='map/올공맵.png') }}" alt="올림픽공원 지도" style="width: 100%; border-radius: 8px; cursor: crosshair;">
@@ -206,12 +218,12 @@
 
                     <div id="facilityPathResult" class="path-result" style="display: none;">
                         <div class="result-header">
-                            <h3 id="facilityPathResultTitle">경로 결과</h3>
-                            <button class="btn btn-secondary btn-sm" id="closeFacilityPathResultBtn">닫기</button>
+                            <h3 id="facilityPathResultTitle" data-i18n="path_result">경로 결과</h3>
+                            <button class="btn btn-secondary btn-sm" id="closeFacilityPathResultBtn" data-i18n="btn_close">닫기</button>
                         </div>
                         <div class="path-info">
                             <div class="info-item">
-                                <span class="info-label">거리:</span>
+                                <span class="info-label" data-i18n="distance">거리:</span>
                                 <span id="facilityPathDistance" class="info-value"></span>
                             </div>
                         </div>
@@ -222,7 +234,7 @@
 
                     <div id="facilityPathLoading" class="loading" style="display: none;">
                         <div class="spinner"></div>
-                        <p>가장 가까운 시설물을 찾는 중...</p>
+                        <p data-i18n="finding_facility">가장 가까운 시설물을 찾는 중...</p>
                     </div>
                 </div>
             </section>
