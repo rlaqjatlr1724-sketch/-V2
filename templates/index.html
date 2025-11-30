@@ -64,19 +64,21 @@
                         <button class="btn btn-primary" id="selectAllBtn">Select All</button>
                     </div>
 
-                    <div class="query-panel">
-                        <h3>Ask a Question</h3>
-                        <textarea id="searchQuery" placeholder="Enter your question here. Example: What are the main topics in this document?" rows="6"></textarea>
-                        <button class="btn btn-primary" id="searchBtn" style="width: 100%; margin-top: 10px;">Search</button>
+                    <div class="chat-panel">
+                        <div class="chat-header">
+                            <h3>Conversation</h3>
+                            <button class="btn btn-secondary btn-sm" id="clearChatBtn">Clear Chat</button>
+                        </div>
+                        <div id="chatHistory" class="chat-history">
+                            <div class="empty-chat">
+                                <p>No conversation yet. Start by asking a question!</p>
+                            </div>
+                        </div>
+                        <div class="chat-input-container">
+                            <textarea id="searchQuery" placeholder="Ask a question about your documents..." rows="3"></textarea>
+                            <button class="btn btn-primary" id="searchBtn">Send</button>
+                        </div>
                     </div>
-                </div>
-
-                <div id="searchResult" class="search-result" style="display: none;">
-                    <div class="result-header">
-                        <h3>Search Results</h3>
-                        <button class="btn btn-secondary btn-sm" id="closeResultBtn">Close</button>
-                    </div>
-                    <div id="resultContent" class="result-content"></div>
                 </div>
 
                 <div id="searchLoading" class="loading" style="display: none;">

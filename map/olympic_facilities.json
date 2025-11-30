@@ -1,0 +1,1594 @@
+[
+    {
+        "id": "olympic_1",
+        "name": "서울올림픽파크텔",
+        "x": 47,
+        "y": 307,
+        "desc": "서울 송파구 올림픽로 448, 몽촌토성역 1번 출구에서560m",
+        "category": "others"
+    },
+    {
+        "id": "olympic_2",
+        "name": "국민체육진흥공단·대한체육회(올림픽회관)",
+        "x": 97,
+        "y": 400,
+        "desc": "서울 송파구 올림픽로 424, 몽촌토성역 1번 출구에서282m",
+        "category": "others"
+    },
+    {
+        "id": "olympic_3",
+        "name": "수변무대B",
+        "x": 145,
+        "y": 446,
+        "desc": "세계평화의문을 지나 평화의광장 아래로 내려가 국기광장의 왼편",
+        "category": "others"
+    },
+    {
+        "id": "olympic_4",
+        "name": "수변무대A",
+        "x": 238,
+        "y": 486,
+        "desc": "세계평화의문을 지나 평화의광장 아래로 내려가 국기광장의 오른편",
+        "category": "others"
+    },
+    {
+        "id": "olympic_5",
+        "name": "국기광장",
+        "x": 213,
+        "y": 486,
+        "desc": "세계평화의문을 지나 평화의광장 아래쪽",
+        "category": "others"
+    },
+    {
+        "id": "olympic_6",
+        "name": "평화의광장",
+        "x": 174,
+        "y": 498,
+        "desc": "몽촌토성역1번출구를 나와 세계평화의문 근처, 한성백제역 2번 출구에서282m",
+        "category": "others"
+    },
+    {
+        "id": "olympic_7",
+        "name": "올림픽스포츠콤플렉스 홍보관",
+        "x": 154,
+        "y": 485,
+        "desc": "평화의 광장 왼편 안내센터 근처",
+        "category": "others"
+    },
+    {
+        "id": "olympic_8",
+        "name": "국민체력100 대표체력인증센터",
+        "x": 138,
+        "y": 495,
+        "desc": "평화의 광장 왼편 안내센터 근처",
+        "category": "others"
+    },
+    {
+        "id": "olympic_9",
+        "name": "세계평화의문",
+        "x": 136,
+        "y": 550,
+        "desc": "서울 송파구 위례성대로 51, 몽촌토성역 1번 출구에서223m",
+        "category": "others"
+    },
+    {
+        "id": "culture_1",
+        "name": "선린동산",
+        "x": 124,
+        "y": 595,
+        "desc": "서울 송파구 위례성대로 28, 몽촌토성역 평화의문1번 출구",
+        "category": "others"
+    },
+    {
+        "id": "culture_2",
+        "name": "음악분수",
+        "x": 253,
+        "y": 442,
+        "desc": "평화의광장 아래 국기광장 근처 몽촌호 중앙",
+        "category": "others"
+    },
+    {
+        "id": "culture_3",
+        "name": "몽촌폭포",
+        "x": 284,
+        "y": 503,
+        "desc": "몽촌호 수변무대A 오른편",
+        "category": "others"
+    },
+    {
+        "id": "culture_4",
+        "name": "물레방아",
+        "x": 318,
+        "y": 495,
+        "desc": "몽촌호 수변무대A 오른편",
+        "category": "others"
+    },
+    {
+        "id": "culture_5",
+        "name": "소마미술관",
+        "x": 328,
+        "y": 590,
+        "desc": "서울 송파구 위례성대로 51",
+        "category": "others"
+    },
+    {
+        "id": "culture_6",
+        "name": "조각공원",
+        "x": 378,
+        "y": 570,
+        "desc": "소마미술관과 한성백제박물관 사이",
+        "category": "others"
+    },
+    {
+        "id": "culture_7",
+        "name": "지구촌공원",
+        "x": 422,
+        "y": 540,
+        "desc": "소마미술관과 한성백제박물관 사이",
+        "category": "others"
+    },
+    {
+        "id": "culture_8",
+        "name": "한성백제박물관",
+        "x": 482,
+        "y": 585,
+        "desc": "서울 송파구 위례성대로 71",
+        "category": "others"
+    },
+    {
+        "id": "culture_9",
+        "name": "원두막",
+        "x": 705,
+        "y": 570,
+        "desc": "장미광장 옆 들꽃마루 정상",
+        "category": "others"
+    },
+    {
+        "id": "culture_10",
+        "name": "들꽃마루",
+        "x": 775,
+        "y": 565,
+        "desc": "방이역 4번 출구에서726m 장미광장 옆",
+        "category": "others"
+    },
+    {
+        "id": "culture_11",
+        "name": "장미광장",
+        "x": 825,
+        "y": 525,
+        "desc": "올림픽공원역 3번 출구에서570m, 남1문",
+        "category": "others"
+    },
+    {
+        "id": "culture_12",
+        "name": "몽촌토성 산책로",
+        "x": 297,
+        "y": 420,
+        "desc": "몽촌호를 따라 오른편에 위치, 출발점은 벨로드롬 경기장 앞쪽 야생화학습장 앞",
+        "category": "others"
+    },
+    {
+        "id": "culture_13",
+        "name": "대화(조각)",
+        "x": 384,
+        "y": 510,
+        "desc": "소마미술관과 한성백제박술관 사이 조각공원 왼편에 위치",
+        "category": "others"
+    },
+    {
+        "id": "exciting_1",
+        "name": "올림픽수영경기장",
+        "x": 560,
+        "y": 148,
+        "desc": "서울 송파구 올림픽로 424 올림픽수영장",
+        "category": "others"
+    },
+    {
+        "id": "exciting_2",
+        "name": "KSPO DOME(체조경기장)",
+        "x": 643,
+        "y": 185,
+        "desc": "서울 송파구 올림픽로 424 체조경기장",
+        "category": "others"
+    },
+    {
+        "id": "exciting_3",
+        "name": "한얼광장",
+        "x": 657,
+        "y": 284,
+        "desc": "체조경기장과 핸드볼경기장 사이 광장",
+        "category": "others"
+    },
+    {
+        "id": "exciting_4",
+        "name": "한얼교",
+        "x": 702,
+        "y": 284,
+        "desc": "체조경기장과 핸드볼경기장 사이 광장에서 올림픽공원역 방향 다리",
+        "category": "others"
+    },
+    {
+        "id": "exciting_5",
+        "name": "티켓링크 라이브 아레나(핸드볼경기장)",
+        "x": 624,
+        "y": 330,
+        "desc": "서울 송파구 올림픽로 424 핸드볼경기장",
+        "category": "others"
+    },
+    {
+        "id": "exciting_6",
+        "name": "우리금융아트홀(올림픽역도경기장)",
+        "x": 588,
+        "y": 400,
+        "desc": "서울 송파구 올림픽로 424 우리금융아트홀",
+        "category": "others"
+    },
+    {
+        "id": "exciting_7",
+        "name": "벨로드롬(올림픽사이클경기장)",
+        "x": 512,
+        "y": 450,
+        "desc": "서울 송파구 올림픽로 424 올팍축구장",
+        "category": "others"
+    },
+    {
+        "id": "exciting_8",
+        "name": "스포츠비즈홀",
+        "x": 608,
+        "y": 454,
+        "desc": "서울 송파구 올림픽로 424 스포츠비즈홀",
+        "category": "others"
+    },
+    {
+        "id": "exciting_9",
+        "name": "지샘터도서관",
+        "x": 585,
+        "y": 475,
+        "desc": "서울 송파구 올림픽로 424 지샘터 올림픽공원도서관",
+        "category": "others"
+    },
+    {
+        "id": "exciting_10",
+        "name": "한국스포츠과학원(올림픽문화센터)",
+        "x": 680,
+        "y": 490,
+        "desc": "서울 송파구 올림픽로 424 올림픽문화센터",
+        "category": "others"
+    },
+    {
+        "id": "exciting_11",
+        "name": "K-아트홀(태권도공연장)",
+        "x": 772,
+        "y": 518,
+        "desc": "서울 송파구 올림픽로 424 올림픽공원 K-아트홀",
+        "category": "others"
+    },
+    {
+        "id": "exciting_12",
+        "name": "올림픽홀·뮤즈라이브",
+        "x": 762,
+        "y": 450,
+        "desc": "서울 송파구 올림픽로 424 올림픽홀",
+        "category": "others"
+    },
+    {
+        "id": "exciting_13",
+        "name": "실내테니스장",
+        "x": 823,
+        "y": 475,
+        "desc": "올림픽공원 테니스경기장과 장미광장 사이",
+        "category": "others"
+    },
+    {
+        "id": "exciting_14",
+        "name": "올림픽테니스경기장",
+        "x": 800,
+        "y": 365,
+        "desc": "서울 송파구 올림픽로 424 올림픽공원테니스경기장",
+        "category": "others"
+    },
+    {
+        "id": "exciting_15",
+        "name": "백호다리",
+        "x": 668,
+        "y": 425,
+        "desc": "우리금융아트홀에서 올림픽홀 방향으로 넘어가는 다리",
+        "category": "others"
+    },
+    {
+        "id": "exciting_16",
+        "name": "3대3 농구장",
+        "x": 764,
+        "y": 365,
+        "desc": "올림픽테니스경기장 앞 주차장 왼편",
+        "category": "others"
+    },
+    {
+        "id": "exciting_17",
+        "name": "국민체력센터",
+        "x": 742,
+        "y": 323,
+        "desc": "한얼교와 2경(엄지손가락) 사이",
+        "category": "others"
+    },
+    {
+        "id": "exciting_18",
+        "name": "만남의 광장",
+        "x": 797,
+        "y": 278,
+        "desc": "올림픽공원역 3번출구 방면",
+        "category": "others"
+    },
+    {
+        "id": "exciting_19",
+        "name": "그래피티의 벽",
+        "x": 733,
+        "y": 250,
+        "desc": "올림픽공원역 3번출구 나와서 오른편",
+        "category": "others"
+    },
+    {
+        "id": "exciting_20",
+        "name": "엄지손가락(조각)",
+        "x": 760,
+        "y": 280,
+        "desc": "올림픽공원역 3번출구 나와서 만남의 광장 내",
+        "category": "others"
+    },
+    {
+        "id": "picnic_1",
+        "name": "몽촌해자",
+        "x": 192,
+        "y": 422,
+        "desc": "평화의광장방면 몽촌호",
+        "category": "others"
+    },
+    {
+        "id": "picnic_2",
+        "name": "곰말다리",
+        "x": 104,
+        "y": 354,
+        "desc": "서울올림픽파크텔에서 몽촌토성 산책로 방향으로 넘어가는 다리",
+        "category": "others"
+    },
+    {
+        "id": "picnic_3",
+        "name": "몽촌정 팔각정",
+        "x": 57,
+        "y": 233,
+        "desc": "서울올림픽파크텔 근처 위쪽에 위치",
+        "category": "others"
+    },
+    {
+        "id": "picnic_4",
+        "name": "구중교",
+        "x": 41,
+        "y": 206,
+        "desc": "서울올림픽파크텔 근처 팔각정 위쪽",
+        "category": "others"
+    },
+    {
+        "id": "picnic_5",
+        "name": "성내천",
+        "x": 116,
+        "y": 162,
+        "desc": "서울올림픽파크텔 위쪽으로 팔각정을 지나 구중교 위쪽",
+        "category": "others"
+    },
+    {
+        "id": "picnic_6",
+        "name": "나홀로나무",
+        "x": 209,
+        "y": 205,
+        "desc": "서울올림픽파크텔에서 곰말다리를 지나 몽촌토성 산책를 따라 위쪽으로 올라가다보면 오른편에 위치",
+        "category": "others"
+    },
+    {
+        "id": "picnic_7",
+        "name": "피크닉장",
+        "x": 248,
+        "y": 114,
+        "desc": "북1문에서 서울백제어린이박물관 앞",
+        "category": "others"
+    },
+    {
+        "id": "picnic_8",
+        "name": "무지개다리",
+        "x": 287,
+        "y": 40,
+        "desc": "북1문에서 몽촌역사관으로 넘어가는 다리",
+        "category": "others"
+    },
+    {
+        "id": "picnic_9",
+        "name": "서울백제어린이박물관",
+        "x": 340,
+        "y": 70,
+        "desc": "서울 송파구 올림픽로 424 서울백제어린이박물관",
+        "category": "others"
+    },
+    {
+        "id": "picnic_10",
+        "name": "청룡교",
+        "x": 490,
+        "y": 30,
+        "desc": "북2문에서 올림픽수영경기장 가는방면 다리",
+        "category": "others"
+    },
+    {
+        "id": "picnic_11",
+        "name": "까치다리",
+        "x": 455,
+        "y": 66,
+        "desc": "북2문에서 서울역사편찬원가는방면으로 넘어가는 다리",
+        "category": "others"
+    },
+    {
+        "id": "picnic_12",
+        "name": "오륜정 팔각정",
+        "x": 432,
+        "y": 80,
+        "desc": "북2문에서 서울역사편찬원가는방면으로 88호수근처에 위치",
+        "category": "others"
+    },
+    {
+        "id": "picnic_13",
+        "name": "서울역사편찬원",
+        "x": 383,
+        "y": 129,
+        "desc": "서울 송파구 올림픽로 424 서울역사편찬원",
+        "category": "others"
+    },
+    {
+        "id": "picnic_14",
+        "name": "88호수",
+        "x": 443,
+        "y": 129,
+        "desc": "서울역사편찬원 앞",
+        "category": "others"
+    },
+    {
+        "id": "picnic_15",
+        "name": "88호수수변무대",
+        "x": 474,
+        "y": 205,
+        "desc": "88호수의 오른편 아래 끝쪽에 위치, 올림픽수영경기장 왼편 ",
+        "category": "others"
+    },
+    {
+        "id": "picnic_16",
+        "name": "백제집자리전시관",
+        "x": 448,
+        "y": 238,
+        "desc": "서울 송파구 올림픽로 424 백제집자리전시관",
+        "category": "others"
+    },
+    {
+        "id": "picnic_17",
+        "name": "88마당",
+        "x": 524,
+        "y": 292,
+        "desc": "체조경기장과 핸드볼경기장사이  한얼광장 왼편 잔디마당, 올림픽공원역 3번출구에서 500m,한성백제역 2번 출구에서928m",
+        "category": "others"
+    },
+    {
+        "id": "picnic_18",
+        "name": "야생화학습장",
+        "x": 376,
+        "y": 368,
+        "desc": "88마당 왼편으로 벨로드롬을 지나 몽촌호방면 4경(대화)가기전에 위치",
+        "category": "others"
+    },
+    {
+        "id": "picnic_19",
+        "name": "가족놀이동산",
+        "x": 303,
+        "y": 263,
+        "desc": "88마당 왼쪽에 야생화학습장, 몽촌토성산책로 입구를 통해  나홀로나무방면으로 오는 중간에 위치",
+        "category": "others"
+    },
+    {
+        "id": "facility_1",
+        "name": "안내센터(I,II)",
+        "x": 136,
+        "y": 483,
+        "desc": "",
+        "category": "others"
+    },
+    {
+        "id": "facility_1_1",
+        "name": "안내센터1(수유실)",
+        "x": 136,
+        "y": 483,
+        "desc": "세계평화의문을 지나 평화의광장 왼편",
+        "category": "others"
+    },
+    {
+        "id": "facility_1_2",
+        "name": "안내센터2",
+        "x": 766,
+        "y": 322,
+        "desc": "올림픽공원역 엄지손가락 근처 왼편",
+        "category": "others"
+    },
+    {
+        "id": "facility_2",
+        "name": "자전거매표소(I,II)",
+        "x": 106,
+        "y": 513,
+        "desc": "",
+        "category": "others"
+    },
+    {
+        "id": "facility_2_1",
+        "name": "자전거매표소1",
+        "x": 106,
+        "y": 513,
+        "desc": "세계평화의문 왼편",
+        "category": "others"
+    },
+    {
+        "id": "facility_2_2",
+        "name": "자전거매표소2",
+        "x": 531,
+        "y": 410,
+        "desc": "우리금융아트홀 앞 88마당 사이",
+        "category": "others"
+    },
+    {
+        "id": "facility_4",
+        "name": "공원매점",
+        "x": 645,
+        "y": 322,
+        "desc": "핸드볼경기장 앞 한얼광장 내",
+        "category": "others"
+    },
+    {
+        "id": "facility_4_3",
+        "name": "올림픽공원 매점(본점)",
+        "x": 645,
+        "y": 322,
+        "desc": "핸드볼경기장 앞 한얼광장 내",
+        "category": "others"
+    },
+    {
+        "id": "facility_4_4",
+        "name": "올림픽공원 매점(2호점)",
+        "x": 480,
+        "y": 227,
+        "desc": "88호수 가기전 올림픽수영경기장 왼편",
+        "category": "others"
+    },
+    {
+        "id": "facility_4_5",
+        "name": "올림픽공원 매점(3호점)",
+        "x": 531,
+        "y": 368,
+        "desc": "우리금융하트홀 앞과 88마당사이 자전거매표소근처",
+        "category": "others"
+    },
+    {
+        "id": "facility_4_6",
+        "name": "올림픽공원 매점(4호점)",
+        "x": 731,
+        "y": 468,
+        "desc": "올림픽홀과 뮤즈라이브 근처",
+        "category": "others"
+    },
+    {
+        "id": "facility_4_9",
+        "name": "올림픽공원 매점(5호점)",
+        "x": 650,
+        "y": 250,
+        "desc": "올림픽체조경기장 근처",
+        "category": "others"
+    },
+    {
+        "id": "facility_4_10",
+        "name": "올림픽공원 매점(6호점)",
+        "x": 630,
+        "y": 250,
+        "desc": "올림픽체조경기장 근처",
+        "category": "others"
+    },
+    {
+        "id": "facility_4_1",
+        "name": "세븐일레븐 올림픽공원점",
+        "x": 169,
+        "y": 512,
+        "desc": "세계평화의문을 지나 평화의광장 오른편",
+        "category": "others"
+    },
+    {
+        "id": "facility_4_2",
+        "name": "CU 올림픽공원점",
+        "x": 837,
+        "y": 322,
+        "desc": "올림픽공원역 3번 출구로 나와서 왼편",
+        "category": "others"
+    },
+    {
+        "id": "facility_4_11",
+        "name": "GS25 올림픽수영장점",
+        "x": 550,
+        "y": 140,
+        "desc": "올림픽수영경기장 내",
+        "category": "others"
+    },
+    {
+        "id": "facility_5",
+        "name": "화장실",
+        "x": 492,
+        "y": 62,
+        "desc": "북2문으로 들어와 청룡교 근처",
+        "category": "toilet"
+    },
+    {
+        "id": "facility_5_1",
+        "name": "화장실1",
+        "x": 492,
+        "y": 62,
+        "desc": "북2문으로 들어와 청룡교 근처",
+        "category": "toilet"
+    },
+    {
+        "id": "facility_5_2",
+        "name": "화장실2",
+        "x": 125,
+        "y": 485,
+        "desc": "세계평화의문을 지나 광장 왼편",
+        "category": "toilet"
+    },
+    {
+        "id": "facility_5_3",
+        "name": "화장실3",
+        "x": 202,
+        "y": 516,
+        "desc": "세계평화의문을 지나 광장 오른편",
+        "category": "toilet"
+    },
+    {
+        "id": "facility_5_4",
+        "name": "화장실4",
+        "x": 360,
+        "y": 493,
+        "desc": "조각공원 4경 대화 근처",
+        "category": "toilet"
+    },
+    {
+        "id": "facility_5_5",
+        "name": "화장실5",
+        "x": 790,
+        "y": 322,
+        "desc": "올림픽공원역3번출구 왼편",
+        "category": "toilet"
+    },
+    {
+        "id": "facility_5_6",
+        "name": "화장실6",
+        "x": 795,
+        "y": 468,
+        "desc": "올림픽홀과 뮤즈라이브 오른편",
+        "category": "toilet"
+    },
+    {
+        "id": "facility_5_7",
+        "name": "화장실1",
+        "x": 782,
+        "y": 495,
+        "desc": "올림픽홀과 뮤즈라이브 앞",
+        "category": "toilet"
+    },
+    {
+        "id": "facility_5_8",
+        "name": "화장실8",
+        "x": 665,
+        "y": 498,
+        "desc": "국민체육진흥공단 왼쪽",
+        "category": "toilet"
+    },
+    {
+        "id": "facility_5_9",
+        "name": "화장실9",
+        "x": 532,
+        "y": 518,
+        "desc": "벨로드롬 앞",
+        "category": "toilet"
+    },
+    {
+        "id": "facility_5_10",
+        "name": "화장실10",
+        "x": 432,
+        "y": 465,
+        "desc": "벨로드롬 왼쪽",
+        "category": "toilet"
+    },
+    {
+        "id": "facility_5_11",
+        "name": "화장실11",
+        "x": 483,
+        "y": 380,
+        "desc": "우리금융아트홀과 벨로드롬 사이 광장  자전거매표소 왼편",
+        "category": "toilet"
+    },
+    {
+        "id": "facility_5_12",
+        "name": "화장실12",
+        "x": 510,
+        "y": 233,
+        "desc": "올림픽수영경기장 왼편",
+        "category": "toilet"
+    },
+    {
+        "id": "facility_5_13",
+        "name": "화장실13",
+        "x": 270,
+        "y": 280,
+        "desc": "몽촌토성 산책로를 따라 나홀로나무가는 중간",
+        "category": "toilet"
+    },
+    {
+        "id": "facility_5_14",
+        "name": "화장실14",
+        "x": 288,
+        "y": 78,
+        "desc": "북1문 무지개다리 지나 서울백제어린이박물관 앞",
+        "category": "toilet"
+    },
+    {
+        "id": "facility_6",
+        "name": "음수대",
+        "x": 723,
+        "y": 454,
+        "desc": "올림픽홀 앞",
+        "category": "others"
+    },
+    {
+        "id": "facility_6_1",
+        "name": "음수대1",
+        "x": 723,
+        "y": 454,
+        "desc": "올림픽홀 앞",
+        "category": "others"
+    },
+    {
+        "id": "facility_6_2",
+        "name": "음수대2",
+        "x": 800,
+        "y": 500,
+        "desc": "실내테니스장 앞",
+        "category": "others"
+    },
+    {
+        "id": "facility_6_3",
+        "name": "음수대3",
+        "x": 838,
+        "y": 600,
+        "desc": "장미광장내",
+        "category": "others"
+    },
+    {
+        "id": "facility_6_4",
+        "name": "음수대4",
+        "x": 740,
+        "y": 350,
+        "desc": "올림픽테니스 경기장 오른편 농구장 근처",
+        "category": "others"
+    },
+    {
+        "id": "facility_6_5",
+        "name": "음수대5",
+        "x": 793,
+        "y": 263,
+        "desc": "올림필공원역3번출구 오른편",
+        "category": "others"
+    },
+    {
+        "id": "facility_6_6",
+        "name": "음수대6",
+        "x": 475,
+        "y": 95,
+        "desc": "북2문을 지나 올림픽수영경기장 주차장쪽",
+        "category": "others"
+    },
+    {
+        "id": "facility_6_7",
+        "name": "음수대7",
+        "x": 542,
+        "y": 364,
+        "desc": "우리금융아트홀 앞 자전거매표소근처",
+        "category": "others"
+    },
+    {
+        "id": "facility_6_8",
+        "name": "음수대8",
+        "x": 500,
+        "y": 232,
+        "desc": "올림픽수영경기장 근처 화장실옆",
+        "category": "others"
+    },
+    {
+        "id": "facility_6_9",
+        "name": "음수대9",
+        "x": 302,
+        "y": 89,
+        "desc": "서울백제어린이박물관 앞",
+        "category": "others"
+    },
+    {
+        "id": "facility_6_10",
+        "name": "음수대10",
+        "x": 288,
+        "y": 93,
+        "desc": "서울백제어린이박물관 앞 화장실 옆",
+        "category": "others"
+    },
+    {
+        "id": "facility_6_11",
+        "name": "음수대11",
+        "x": 299,
+        "y": 148,
+        "desc": "북1문을 지나 서울백제어린이박물관을 지나서 서울역사편찬원 방면",
+        "category": "others"
+    },
+    {
+        "id": "facility_6_12",
+        "name": "음수대12",
+        "x": 268,
+        "y": 262,
+        "desc": "몽촌토성 산책로를 따라 나홀로나무가는 중간 화장실 근처",
+        "category": "others"
+    },
+    {
+        "id": "facility_6_13",
+        "name": "음수대13",
+        "x": 400,
+        "y": 416,
+        "desc": "벨로드롬을 근처 야생화학습장 방면",
+        "category": "others"
+    },
+    {
+        "id": "facility_6_14",
+        "name": "음수대14",
+        "x": 230,
+        "y": 505,
+        "desc": "평화의광장 수변무대 오른편",
+        "category": "others"
+    },
+    {
+        "id": "facility_6_15",
+        "name": "음수대15",
+        "x": 107,
+        "y": 440,
+        "desc": "올림픽회관앞",
+        "category": "others"
+    },
+    {
+        "id": "facility_6_16",
+        "name": "음수대16",
+        "x": 86,
+        "y": 385,
+        "desc": "서울올림픽파크텔과 올림픽회관 사이",
+        "category": "others"
+    },
+    {
+        "id": "facility_6_16",
+        "name": "음수대17",
+        "x": 73,
+        "y": 345,
+        "desc": "서울올림픽파크텔 앞",
+        "category": "others"
+    },
+    {
+        "id": "facility_6_16",
+        "name": "음수대18",
+        "x": 430,
+        "y": 520,
+        "desc": "하늘기둥 앞",
+        "category": "others"
+    },
+    {
+        "id": "facility_7",
+        "name": "해피박스(티켓박스)",
+        "x": 590,
+        "y": 420,
+        "desc": "우리금융아트홀 앞",
+        "category": "others"
+    },
+    {
+        "id": "facility_7_1",
+        "name": "해피박스1",
+        "x": 590,
+        "y": 420,
+        "desc": "우리금융아트홀 앞",
+        "category": "others"
+    },
+    {
+        "id": "facility_7_2",
+        "name": "해피박스2",
+        "x": 650,
+        "y": 245,
+        "desc": "올림픽체조경기장 앞",
+        "category": "others"
+    },
+    {
+        "id": "facility_8",
+        "name": "간이체육시설",
+        "x": 843,
+        "y": 270,
+        "desc": "올림픽공원역 3번출구 앞",
+        "category": "others"
+    },
+    {
+        "id": "facility_8_1",
+        "name": "간이체육시설1",
+        "x": 843,
+        "y": 270,
+        "desc": "올림픽공원역 3번출구 앞",
+        "category": "others"
+    },
+    {
+        "id": "facility_8_2",
+        "name": "간이체육시설2",
+        "x": 765,
+        "y": 560,
+        "desc": "들꽃마루 오른편",
+        "category": "others"
+    },
+    {
+        "id": "facility_8_3",
+        "name": "간이체육시설3",
+        "x": 210,
+        "y": 530,
+        "desc": "평화의광장 오른편 화장실 앞",
+        "category": "others"
+    },
+    {
+        "id": "facility_8_4",
+        "name": "간이체육시설4",
+        "x": 125,
+        "y": 485,
+        "desc": "평화의광장 왼편 안내센터 뒤쪽",
+        "category": "others"
+    },
+    {
+        "id": "facility_8_5",
+        "name": "간이체육시설5",
+        "x": 530,
+        "y": 360,
+        "desc": "88마당 내 자전거매표소 근처",
+        "category": "others"
+    },
+    {
+        "id": "facility_8_6",
+        "name": "간이체육시설6",
+        "x": 552,
+        "y": 345,
+        "desc": "88마당 내 자전거매표소 근처",
+        "category": "others"
+    },
+    {
+        "id": "facility_8_7",
+        "name": "간이체육시설7",
+        "x": 560,
+        "y": 335,
+        "desc": "88마당 내 자전거매표소 근처",
+        "category": "others"
+    },
+    {
+        "id": "facility_8_8",
+        "name": "간이체육시설8",
+        "x": 565,
+        "y": 280,
+        "desc": "88마당 내 올림픽체조경기장 앞쪽",
+        "category": "others"
+    },
+    {
+        "id": "facility_8_9",
+        "name": "간이체육시설9",
+        "x": 555,
+        "y": 270,
+        "desc": "88마당 내 올림픽체조경기장 앞쪽",
+        "category": "others"
+    },
+    {
+        "id": "facility_8_10",
+        "name": "간이체육시설10",
+        "x": 520,
+        "y": 255,
+        "desc": "88마당 내 올림픽체조경기장 앞쪽",
+        "category": "others"
+    },
+    {
+        "id": "facility_8_11",
+        "name": "간이체육시설11",
+        "x": 495,
+        "y": 265,
+        "desc": "88마당 내 올림픽수영경기장 앞쪽",
+        "category": "others"
+    },
+    {
+        "id": "facility_8_12",
+        "name": "간이체육시설12",
+        "x": 446,
+        "y": 496,
+        "desc": "중앙공급실 뒤 산책로",
+        "category": "others"
+    },
+    {
+        "id": "facility_8_13",
+        "name": "시니어체육시설",
+        "x": 495,
+        "y": 365,
+        "desc": "88마당 내 핸드볼경기장 앞쪽",
+        "category": "others"
+    },
+    {
+        "id": "facility_9",
+        "name": "농구장",
+        "x": 775,
+        "y": 365,
+        "desc": "올림픽테니스 경기장 앞 주차장 왼편",
+        "category": "others"
+    },
+    {
+        "id": "facility_9_1",
+        "name": "농구장1",
+        "x": 775,
+        "y": 365,
+        "desc": "올림픽테니스 경기장 앞 주차장 왼편",
+        "category": "others"
+    },
+    {
+        "id": "facility_9_2",
+        "name": "농구장2",
+        "x": 520,
+        "y": 410,
+        "desc": "우리금융아트홀과 벨로드롬 사이",
+        "category": "others"
+    },
+    {
+        "id": "facility_10",
+        "name": "인라인",
+        "x": 88,
+        "y": 580,
+        "desc": "몽촌토성역 세계평화의문 1번출구 앞",
+        "category": "others"
+    },
+    {
+        "id": "facility_10_1",
+        "name": "인라인1",
+        "x": 88,
+        "y": 580,
+        "desc": "몽촌토성역 세계평화의문 1번출구 앞",
+        "category": "others"
+    },
+    {
+        "id": "facility_10_2",
+        "name": "인라인2",
+        "x": 160,
+        "y": 505,
+        "desc": "몽촌토성역 세계평화의문을 지나 평화의광장",
+        "category": "others"
+    },
+    {
+        "id": "facility_11",
+        "name": "지압로",
+        "x": 765,
+        "y": 255,
+        "desc": "올림픽공원역 3번출구 오른편",
+        "category": "others"
+    },
+    {
+        "id": "facility_11_1",
+        "name": "지압로1",
+        "x": 765,
+        "y": 255,
+        "desc": "올림픽공원역 3번출구 오른편",
+        "category": "others"
+    },
+    {
+        "id": "facility_11_2",
+        "name": "지압로2",
+        "x": 125,
+        "y": 470,
+        "desc": "세계평화의문을 지나 평화의광장 왼편",
+        "category": "others"
+    },
+    {
+        "id": "facility_12",
+        "name": "어린이놀이터",
+        "x": 122,
+        "y": 485,
+        "desc": "세계평화의문을 지나 평화의광장 왼편",
+        "category": "others"
+    },
+    {
+        "id": "facility_12_1",
+        "name": "어린이놀이터1",
+        "x": 122,
+        "y": 485,
+        "desc": "세계평화의문을 지나 평화의광장 왼편",
+        "category": "others"
+    },
+    {
+        "id": "facility_12_2",
+        "name": "어린이놀이터2",
+        "x": 212,
+        "y": 515,
+        "desc": "세계평화의문을 지나 평화의광장 오른편",
+        "category": "others"
+    },
+    {
+        "id": "facility_13",
+        "name": "포켓쉼터(A~D)",
+        "x": 30,
+        "y": 435,
+        "desc": "올림픽회관 왼쪽",
+        "category": "others"
+    },
+    {
+        "id": "facility_13_1",
+        "name": "포켓쉼터A",
+        "x": 30,
+        "y": 435,
+        "desc": "올림픽회관 왼쪽",
+        "category": "others"
+    },
+    {
+        "id": "facility_13_4",
+        "name": "포켓쉼터D",
+        "x": 35,
+        "y": 535,
+        "desc": "몽촌토성역 평화의문1번출구 왼쪽",
+        "category": "others"
+    },
+    {
+        "id": "facility_14",
+        "name": "기념관 카페테리아",
+        "x": 67,
+        "y": 455,
+        "desc": "올림픽회관 내",
+        "category": "others"
+    },
+    {
+        "id": "facility_15",
+        "name": "뮤지엄숍",
+        "x": 280,
+        "y": 550,
+        "desc": "소마미술관 내",
+        "category": "others"
+    },
+    {
+        "id": "facility_19",
+        "name": "올림픽홀 카페",
+        "x": 772,
+        "y": 485,
+        "desc": "서울 송파구 올림픽로 424 뮤즈라이브",
+        "category": "others"
+    },
+    {
+        "id": "facility_20",
+        "name": "우리금융아트홀 카페",
+        "x": 570,
+        "y": 395,
+        "desc": "서울 송파구 올림픽로 424 우리금융아트홀내",
+        "category": "others"
+    },
+    {
+        "id": "facility_17",
+        "name": "#1 SHOT IN COFFEE",
+        "x": 540,
+        "y": 145,
+        "desc": "서울 송파구 올림픽로 424 올림픽공원 내 올림픽수영장 1층",
+        "category": "others"
+    },
+    {
+        "id": "facility_26",
+        "name": "투썸플레이스(만남의광장)",
+        "x": 812,
+        "y": 315,
+        "desc": "서울 송파구 올림픽로 424 투썸플레이스 올림픽공원역점 올림픽공원역 4번출구",
+        "category": "others"
+    },
+    {
+        "id": "facility_27",
+        "name": "투썸플레이스(평화의광장)",
+        "x": 124,
+        "y": 512,
+        "desc": "서울 송파구 올림픽로 424 투썸플레이스 올림픽평화의문점 몽촌토성역 1번출구",
+        "category": "others"
+    },
+    {
+        "id": "facility_28",
+        "name": "파스쿠찌",
+        "x": 284,
+        "y": 523,
+        "desc": "서울 송파구 올림픽로 424 파스쿠찌 소마미술관점 소마미술관 2층",
+        "category": "others"
+    },
+    {
+        "id": "facility_18",
+        "name": "할리스커피",
+        "x": 806,
+        "y": 315,
+        "desc": "서울 송파구 올림픽로 424 할리스커피 올림픽공원역점 올림픽공원역 4번출구",
+        "category": "others"
+    },
+    {
+        "id": "facility_24",
+        "name": "송도불고기",
+        "x": 775,
+        "y": 315,
+        "desc": "서울 송파구 올림픽로 424 송도불고기 올림픽공원역 3번출구 왼편",
+        "category": "others"
+    },
+    {
+        "id": "facility_21",
+        "name": "제일제면소",
+        "x": 785,
+        "y": 315,
+        "desc": "서울 송파구 올림픽로 424 제일제면소  올림픽공원역점 올림픽공원역 3번출구 왼편",
+        "category": "others"
+    },
+    {
+        "id": "facility_16",
+        "name": "토마토김밥",
+        "x": 550,
+        "y": 150,
+        "desc": "서울 송파구 올림픽로 424 올림픽공원 내 올림픽수영장 1층",
+        "category": "others"
+    },
+    {
+        "id": "facility_22",
+        "name": "파리크라상 키친",
+        "x": 836,
+        "y": 315,
+        "desc": "서울 송파구 올림픽로 424 파리크라상 올림픽공원역 3번출구 왼편",
+        "category": "others"
+    },
+    {
+        "id": "facility_23",
+        "name": "포메인",
+        "x": 114,
+        "y": 514,
+        "desc": "서울 송파구 올림픽로 424 평화의광장",
+        "category": "others"
+    },
+    {
+        "id": "entrance_1",
+        "name": "올림픽공원역(5호선,9호선)",
+        "x": 842,
+        "y": 260,
+        "desc": "서울특별시 송파구 양재대로 1233",
+        "category": "others"
+    },
+    {
+        "id": "entrance_2",
+        "name": "몽촌토성역(8호선)",
+        "x": 35,
+        "y": 608,
+        "desc": "서울특별시 송파구 올림픽로 383",
+        "category": "others"
+    },
+    {
+        "id": "entrance_3",
+        "name": "한성백제역(9호선)",
+        "x": 225,
+        "y": 592,
+        "desc": "서울특별시 송파구 위례성대로 51",
+        "category": "others"
+    },
+    {
+        "id": "entrance_4",
+        "name": "출입구 서1문(올림픽회관)",
+        "x": 20,
+        "y": 495,
+        "desc": "서울 송파구 올림픽로 424올림픽회관근처",
+        "category": "others"
+    },
+    {
+        "id": "entrance_5",
+        "name": "출입구 서2문(올림픽파크텔)",
+        "x": 20,
+        "y": 392,
+        "desc": "서울 송파구 올림픽로 424올림픽파크텔 근처",
+        "category": "others"
+    },
+    {
+        "id": "entrance_6",
+        "name": "출입구 동1문",
+        "x": 885,
+        "y": 275,
+        "desc": "서울특별시 송파구 양재대로 1233 올림픽공원역",
+        "category": "others"
+    },
+    {
+        "id": "entrance_7",
+        "name": "출입구 동2문",
+        "x": 885,
+        "y": 335,
+        "desc": "서울특별시 송파구 양재대로 1233 올림픽공원역",
+        "category": "others"
+    },
+    {
+        "id": "entrance_8",
+        "name": "출입구 동3문",
+        "x": 885,
+        "y": 590,
+        "desc": "장미광장 근처",
+        "category": "others"
+    },
+    {
+        "id": "entrance_9",
+        "name": "출입구 남1문",
+        "x": 850,
+        "y": 610,
+        "desc": "장미광장 근처",
+        "category": "others"
+    },
+    {
+        "id": "entrance_10",
+        "name": "출입구 남2문",
+        "x": 570,
+        "y": 610,
+        "desc": "한성백제박물관과 들꽃마루사이",
+        "category": "others"
+    },
+    {
+        "id": "entrance_11",
+        "name": "출입구 남3문",
+        "x": 370,
+        "y": 610,
+        "desc": "소마미술관과 한성백제박물관 사이",
+        "category": "others"
+    },
+    {
+        "id": "entrance_12",
+        "name": "출입구 남4문",
+        "x": 225,
+        "y": 610,
+        "desc": "한성백제역2번출구 근처",
+        "category": "others"
+    },
+    {
+        "id": "entrance_13",
+        "name": "출입구 북1문",
+        "x": 262,
+        "y": 15,
+        "desc": "올림픽공원역 1번 출구에서 한국체육대학을 돌아 강동대로 방면 성내유수지 체육공원 가기전",
+        "category": "others"
+    },
+    {
+        "id": "entrance_14",
+        "name": "출입구 북2문",
+        "x": 485,
+        "y": 15,
+        "desc": "올림픽공원역 1번 출구에서 한국체육대학을 돌아 강동대로 방면 ",
+        "category": "others"
+    },
+    {
+        "id": "parking_1",
+        "name": "주차장회관",
+        "x": 47,
+        "y": 400,
+        "desc": "올림픽파크텔과 올림픽회관 사이",
+        "category": "others"
+    },
+    {
+        "id": "parking_2",
+        "name": "주차장 P1",
+        "x": 635,
+        "y": 485,
+        "desc": "우리금융아트홀에서 국민체육진흥공단쪽으로 오른편",
+        "category": "others"
+    },
+    {
+        "id": "parking_3",
+        "name": "주차장 P2",
+        "x": 735,
+        "y": 395,
+        "desc": "핸드볼경기장과 올림픽테니스경기장 사이",
+        "category": "others"
+    },
+    {
+        "id": "parking_4",
+        "name": "주차장 P4",
+        "x": 488,
+        "y": 100,
+        "desc": "북2문으로 들어와 올림픽수영경기장 방면",
+        "category": "others"
+    },
+    {
+        "id": "parking_5",
+        "name": "주차장 P5",
+        "x": 670,
+        "y": 235,
+        "desc": "올림픽체조경기장 오른편",
+        "category": "others"
+    },
+    {
+        "id": "parking_6",
+        "name": "주차장 P6",
+        "x": 655,
+        "y": 378,
+        "desc": "핸드볼경기장 오른편",
+        "category": "others"
+    },
+    {
+        "id": "parking_7",
+        "name": "주차장 P7",
+        "x": 575,
+        "y": 460,
+        "desc": "우리금융아트홀과 벨로드롬사이",
+        "category": "others"
+    },
+    {
+        "id": "parking_8",
+        "name": "주차 사전무인정산기",
+        "x": 187,
+        "y": 548,
+        "desc": "세계평화의문과 한성백제역 사이",
+        "category": "others"
+    },
+    {
+        "id": "parking_8_1",
+        "name": "주차 사전무인정산기1",
+        "x": 484,
+        "y": 135,
+        "desc": "세계평화의문과 한성백제역 사이",
+        "category": "others"
+    },
+    {
+        "id": "parking_8_2",
+        "name": "주차 사전무인정산기2",
+        "x": 486,
+        "y": 138,
+        "desc": "올림픽수영경기장 주차장",
+        "category": "others"
+    },
+    {
+        "id": "parking_8_3",
+        "name": "주차 사전무인정산기3",
+        "x": 575,
+        "y": 195,
+        "desc": "올림픽수영경기장과 올림픽체조경기장 사이",
+        "category": "others"
+    },
+    {
+        "id": "parking_8_4",
+        "name": "주차 사전무인정산기4",
+        "x": 670,
+        "y": 255,
+        "desc": "올림픽체조경기장 앞",
+        "category": "others"
+    },
+    {
+        "id": "parking_8_5",
+        "name": "주차 사전무인정산기5",
+        "x": 670,
+        "y": 248,
+        "desc": "올림픽체조경기장 앞",
+        "category": "others"
+    },
+    {
+        "id": "parking_8_6",
+        "name": "주차 사전무인정산기6",
+        "x": 725,
+        "y": 283,
+        "desc": "올림픽체조경기장에서 올림픽공원역방면으로 한얼교 지나서 왼편",
+        "category": "others"
+    },
+    {
+        "id": "parking_8_7",
+        "name": "주차 사전무인정산기7",
+        "x": 788,
+        "y": 310,
+        "desc": "올림픽공원역 3번출구 나와서 왼편 제일제면소근처",
+        "category": "others"
+    },
+    {
+        "id": "parking_8_8",
+        "name": "주차 사전무인정산기8",
+        "x": 675,
+        "y": 315,
+        "desc": "올림픽공원역 3번출구 나와서 한얼교 지나서 오른편",
+        "category": "others"
+    },
+    {
+        "id": "parking_8_9",
+        "name": "주차 사전무인정산기9",
+        "x": 671,
+        "y": 322,
+        "desc": "올림픽공원역 3번출구 나와서 한얼교 지나서 오른편",
+        "category": "others"
+    },
+    {
+        "id": "parking_8_10",
+        "name": "주차 사전무인정산기10",
+        "x": 595,
+        "y": 394,
+        "desc": "우리금융아트홀과 핸드볼경기장사이",
+        "category": "others"
+    },
+    {
+        "id": "parking_8_11",
+        "name": "주차 사전무인정산기11",
+        "x": 610,
+        "y": 438,
+        "desc": "우리금융아트홀 주차장방면",
+        "category": "others"
+    },
+    {
+        "id": "parking_8_12",
+        "name": "주차 사전무인정산기12",
+        "x": 730,
+        "y": 410,
+        "desc": "올림픽테니스경기장 왼편 주차장방면",
+        "category": "others"
+    },
+    {
+        "id": "parking_8_13",
+        "name": "주차 사전무인정산기13",
+        "x": 688,
+        "y": 498,
+        "desc": "국민체육진흥공단 뒷편 주차장 방면",
+        "category": "others"
+    },
+    {
+        "id": "parking_8_14",
+        "name": "주차 사전무인정산기14",
+        "x": 682,
+        "y": 450,
+        "desc": "국민체육진흥공단 뒷편 주차장 P1B",
+        "category": "others"
+    },
+    {
+        "id": "parking_8_15",
+        "name": "주차 사전무인정산기15",
+        "x": 675,
+        "y": 455,
+        "desc": "국민체육진흥공단 뒷편 주차장 P1B",
+        "category": "others"
+    },
+    {
+        "id": "parking_8_16",
+        "name": "주차 사전무인정산기16",
+        "x": 668,
+        "y": 468,
+        "desc": "국민체육진흥공단 뒷편 주차장 P1B",
+        "category": "others"
+    },
+    {
+        "id": "parking_8_17",
+        "name": "주차 사전무인정산기17",
+        "x": 616,
+        "y": 500,
+        "desc": "국민체육진흥공단 뒷편 주차장 P1A",
+        "category": "others"
+    },
+    {
+        "id": "parking_8_18",
+        "name": "주차 사전무인정산기18",
+        "x": 635,
+        "y": 532,
+        "desc": "국민체육진흥공단 뒷편 주차장 P1A",
+        "category": "others"
+    },
+    {
+        "id": "parking_8_19",
+        "name": "주차 사전무인정산기19",
+        "x": 215,
+        "y": 540,
+        "desc": "한성백제역 2번출구 나와서 소마미술관 입구 방향으로 왼편",
+        "category": "others"
+    },
+    {
+        "id": "parking_8_20",
+        "name": "주차 사전무인정산기20",
+        "x": 220,
+        "y": 540,
+        "desc": "한성백제역 2번출구 나와서 소마미술관 입구 방향으로 왼편",
+        "category": "others"
+    }
+]
