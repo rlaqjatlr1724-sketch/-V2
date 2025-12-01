@@ -115,6 +115,49 @@ body {
     flex: 1;
 }
 
+/* 네비게이션 그룹 스타일 */
+.nav-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.nav-group-header {
+    position: relative;
+    width: 100%;
+    text-align: left;
+}
+
+.nav-group-header .expand-icon {
+    font-size: 12px;
+    transition: transform 0.3s ease;
+}
+
+.nav-group-header.expanded .expand-icon {
+    transform: rotate(-180deg);
+}
+
+.nav-group-content {
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+    padding-left: 12px;
+    margin-top: 4px;
+    overflow: hidden;
+}
+
+.nav-group-content.expanded {
+    display: flex;
+}
+
+.nav-sub-item {
+    font-size: 13px;
+    padding: 10px 16px;
+}
+
+.nav-sub-item .icon {
+    font-size: 16px;
+}
+
 .sidebar-footer {
     padding: 16px;
     border-top: 1px solid var(--border-color);
@@ -458,10 +501,14 @@ body {
     border-radius: 8px;
     padding: 20px;
     transition: var(--transition);
+    cursor: pointer;
 }
 
 .store-card:hover {
-    box-shadow: var(--shadow-md);
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-4px);
+    background-color: var(--bg-tertiary);
 }
 
 .store-header {
@@ -1127,6 +1174,17 @@ body {
     font-weight: 600;
 }
 
+.documents-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.documents-header h4 {
+    margin: 0;
+}
+
 .document-list {
     list-style: none;
     padding: 0;
@@ -1143,7 +1201,7 @@ body {
     padding: 12px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 12px;
     transition: var(--transition);
 }
 
@@ -1152,20 +1210,53 @@ body {
     box-shadow: var(--shadow-sm);
 }
 
+.doc-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+}
+
 .doc-name {
     color: var(--text-primary);
-    font-weight: 500;
+    font-weight: 600;
     word-break: break-word;
-    font-size: 14px;
+    font-size: 15px;
+    line-height: 1.4;
+}
+
+.doc-details {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
 }
 
 .doc-type {
-    color: var(--text-secondary);
-    font-size: 12px;
+    color: var(--primary-color);
+    font-size: 11px;
+    font-weight: 600;
     background-color: var(--bg-tertiary);
     padding: 4px 8px;
     border-radius: 4px;
     width: fit-content;
+}
+
+.doc-size {
+    color: var(--text-secondary);
+    font-size: 12px;
+}
+
+.doc-date {
+    color: var(--text-tertiary);
+    font-size: 11px;
+}
+
+.doc-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    align-items: center;
 }
 
 .empty-message {

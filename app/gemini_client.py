@@ -2,12 +2,13 @@
 Gemini Client using the new google.genai SDK
 Implements FileSearchStore API for document search and retrieval
 """
-import google.genai as genai
+from google import genai
 from google.genai import types
 from typing import Optional, List, Dict, Any
 import os
 from pathlib import Path
 from app.logger import get_logger
+from app.db import save_mapping, get_mapping, delete_mapping
 
 
 class GeminiClient:
@@ -163,13 +164,13 @@ class GeminiClient:
                 "error": str(e)
             }
 
-    def list_documents_in_store(self, store_name: str, page_size: int = 10) -> Dict[str, Any]:
+    def list_documents_in_store(self, store_name: str, page_size: int = 20) -> Dict[str, Any]:
         """
         List all documents in a FileSearchStore
 
         Args:
-            store_name: Name of the FileSearchStore
-            page_size: Maximum documents per page (default: 10, max: 20)
+            store_name: Name of the FileSearchStore (format: fileSearchStores/{id})
+            page_size: Maximum documents per page (default: 20)
 
         Returns:
             Dict with success status and list of documents
@@ -177,18 +178,23 @@ class GeminiClient:
         try:
             self.logger.info(f"Listing documents in FileSearchStore: {store_name}")
 
+            # Use SDK to list documents (without page_size parameter)
             documents = self.client.file_search_stores.documents.list(
                 parent=store_name
             )
 
             document_list = []
-            for doc in documents:
+            for idx, doc in enumerate(documents):
+                # Try to get original filename from mapping
+                original_filename = get_mapping(doc.name)
+                display_name = original_filename if original_filename else (doc.display_name if hasattr(doc, 'display_name') else None)
+
                 doc_info = {
-                    "document_name": doc.name if hasattr(doc, 'name') else None,
-                    "display_name": doc.display_name if hasattr(doc, 'display_name') else None,
+                    "document_name": doc.name,
+                    "display_name": display_name,
                     "mime_type": doc.mime_type if hasattr(doc, 'mime_type') else None,
-                    "create_time": str(doc.create_time) if hasattr(doc, 'create_time') else None,
-                    "update_time": str(doc.update_time) if hasattr(doc, 'update_time') else None,
+                    "create_time": doc.create_time if hasattr(doc, 'create_time') else None,
+                    "update_time": doc.update_time if hasattr(doc, 'update_time') else None,
                     "size_bytes": doc.size_bytes if hasattr(doc, 'size_bytes') else None,
                 }
                 document_list.append(doc_info)
@@ -208,14 +214,117 @@ class GeminiClient:
                 "documents": []
             }
 
+    def delete_document_from_store(self, document_name: str, force: bool = True) -> Dict[str, Any]:
+        """
+        Delete a document from a FileSearchStore
+
+        Args:
+            document_name: Full name of the document to delete (e.g., 'fileSearchStores/xxx/documents/yyy')
+            force: If True, also delete associated chunks (default: True)
+
+        Returns:
+            Dict with success status
+        """
+        try:
+            self.logger.info(f"Deleting document from FileSearchStore: {document_name}")
+
+            # Use SDK to delete document
+            self.client.file_search_stores.documents.delete(
+                name=document_name,
+                config={'force': force}
+            )
+
+            # Delete mapping from database
+            delete_mapping(document_name)
+
+            self.logger.info(f"Document deleted successfully: {document_name}")
+            return {
+                "success": True,
+                "message": f"Document {document_name} deleted successfully"
+            }
+        except Exception as e:
+            self.logger.error(f"Error deleting document {document_name}: {str(e)}", exc_info=True)
+            return {
+                "success": False,
+                "error": str(e)
+            }
+
+    def delete_all_documents_from_store(self, store_name: str, force: bool = True) -> Dict[str, Any]:
+        """
+        Delete all documents from a FileSearchStore
+
+        Args:
+            store_name: Name of the FileSearchStore (format: fileSearchStores/{id})
+            force: If True, also delete associated chunks (default: True)
+
+        Returns:
+            Dict with success status, deleted count, and any errors
+        """
+        try:
+            self.logger.info(f"Deleting all documents from FileSearchStore: {store_name}")
+
+            # First, get all documents
+            documents_result = self.list_documents_in_store(store_name)
+            if not documents_result['success']:
+                return {
+                    "success": False,
+                    "error": "Failed to list documents",
+                    "deleted_count": 0
+                }
+
+            documents = documents_result['documents']
+            total_count = len(documents)
+            deleted_count = 0
+            failed_count = 0
+            errors = []
+
+            self.logger.info(f"Found {total_count} documents to delete")
+
+            # Delete each document
+            for doc in documents:
+                doc_name = doc['document_name']
+                try:
+                    self.client.file_search_stores.documents.delete(
+                        name=doc_name,
+                        config={'force': force}
+                    )
+                    # Delete mapping from database
+                    delete_mapping(doc_name)
+                    deleted_count += 1
+                    self.logger.debug(f"Deleted document: {doc_name}")
+                except Exception as e:
+                    failed_count += 1
+                    error_msg = f"Failed to delete {doc_name}: {str(e)}"
+                    errors.append(error_msg)
+                    self.logger.error(error_msg)
+
+            self.logger.info(f"Deletion complete: {deleted_count} deleted, {failed_count} failed")
+
+            return {
+                "success": True,
+                "message": f"Deleted {deleted_count} out of {total_count} documents",
+                "deleted_count": deleted_count,
+                "failed_count": failed_count,
+                "total_count": total_count,
+                "errors": errors
+            }
+        except Exception as e:
+            self.logger.error(f"Error deleting all documents from store {store_name}: {str(e)}", exc_info=True)
+            return {
+                "success": False,
+                "error": str(e),
+                "deleted_count": 0
+            }
+
     # ==================== File Management Methods ====================
 
-    def upload_file(self, file_path: str) -> Dict[str, Any]:
+    def upload_file(self, file_path: str, display_name: Optional[str] = None) -> Dict[str, Any]:
         """
         Upload a file to Files API
 
         Args:
             file_path: Path to the file to upload
+            display_name: Optional display name for the file (original filename)
 
         Returns:
             Dict with success status and file information
@@ -229,12 +338,14 @@ class GeminiClient:
                     "error": f"File not found: {file_path}"
                 }
 
-            self.logger.info(f"Uploading file: {file_path}")
+            # Use provided display_name or fallback to file basename
+            final_display_name = display_name or os.path.basename(file_path)
+            self.logger.info(f"Uploading file: {file_path} with display_name: {final_display_name}")
 
             # Upload file using Files API - pass file path as string
             uploaded_file = self.client.files.upload(
                 file=file_path,
-                config={'display_name': os.path.basename(file_path)}
+                config={'display_name': final_display_name}
             )
 
             self.logger.info(f"File uploaded successfully: {uploaded_file.name}")
@@ -255,14 +366,14 @@ class GeminiClient:
                 "error": str(e)
             }
 
-    def import_file_to_store(self, file_id: str, store_name: str, metadata: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def import_file_to_store(self, file_id: str, store_name: str, original_filename: Optional[str] = None) -> Dict[str, Any]:
         """
         Import a file from Files API to a FileSearchStore
 
         Args:
             file_id: ID of the file to import (from Files API)
             store_name: Name of the target FileSearchStore
-            metadata: Optional metadata for the file
+            original_filename: Original filename to save in mapping
 
         Returns:
             Dict with success status
@@ -270,20 +381,21 @@ class GeminiClient:
         try:
             self.logger.info(f"Importing file {file_id} to store {store_name}")
 
-            # Import file to the store
-            if metadata:
-                result = self.client.file_search_stores.import_file(
-                    store_name=store_name,
-                    file_id=file_id,
-                    metadata=metadata
-                )
-            else:
-                result = self.client.file_search_stores.import_file(
-                    store_name=store_name,
-                    file_id=file_id
-                )
+            result = self.client.file_search_stores.import_file(
+                file_search_store_name=store_name,
+                file_name=file_id
+            )
 
-            self.logger.info(f"File imported successfully to store {store_name}")
+            self.logger.info(f"File imported successfully to store {store_name}: {result}")
+
+            # Extract document_name from operation.name
+            # operation.name format: fileSearchStores/{store_id}/operations/{file_id}-{random_id}
+            # document_name format: fileSearchStores/{store_id}/documents/{file_id}-{random_id}
+            if hasattr(result, 'name') and result.name and original_filename:
+                document_name = result.name.replace('/operations/', '/documents/')
+                save_mapping(document_name, original_filename, file_id, store_name)
+                self.logger.info(f"Saved mapping: {document_name} -> {original_filename}")
+
             return {
                 "success": True,
                 "file_id": file_id,
@@ -303,7 +415,7 @@ class GeminiClient:
 
         Args:
             file_path: Path to the file to upload
-            store_name: Name of the target FileSearchStore
+            store_name: Name of the target FileSearchStore (format: fileSearchStores/{id})
             display_name: Optional display name for the file
 
         Returns:
@@ -320,12 +432,11 @@ class GeminiClient:
 
             self.logger.info(f"Uploading and importing file {file_path} to store {store_name}")
 
-            # Upload and import in one step - pass file path as string
-            operation = self.client.file_search_stores.upload_to_file_search_store(
+            # Use SDK to upload file directly to FileSearchStore
+            uploaded_file = self.client.file_search_stores.documents.upload_to_file_search_store(
                 file=file_path,
-                file_search_store_name=store_name,
-                config={'display_name': display_name or os.path.basename(file_path)
-                        ,'max_tokens_per_chunk': 400}
+                store_id=store_name,
+                display_name=display_name or os.path.basename(file_path)
             )
 
             self.logger.info(f"File uploaded and imported successfully to store {store_name}")
@@ -333,6 +444,7 @@ class GeminiClient:
                 "success": True,
                 "store_name": store_name,
                 "file_path": file_path,
+                "document_name": uploaded_file.name if hasattr(uploaded_file, 'name') else None,
                 "message": "File uploaded and imported successfully"
             }
         except Exception as e:

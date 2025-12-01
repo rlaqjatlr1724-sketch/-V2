@@ -3,7 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini File Search - Modern File Search Platform</title>
+    <title>olgong</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/mascot_profile.png') }}">
+    <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='images/mascot_profile.png') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='images/mascot_profile.png') }}">
+
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
@@ -37,14 +43,23 @@
                     <span class="icon">🔍</span>
                     <span class="label" data-i18n="nav_chat_search">Chat Search</span>
                 </button>
-                <button class="nav-item" data-tab="wayfinding">
-                    <span class="icon">🗺️</span>
-                    <span class="label" data-i18n="nav_map_guide">Map Guide</span>
-                </button>
-                <button class="nav-item" data-tab="facility">
-                    <span class="icon">🚻</span>
-                    <span class="label" data-i18n="nav_nearest_facility">Nearest Facility</span>
-                </button>
+                <div class="nav-group">
+                    <button class="nav-item nav-group-header" id="mapGroupHeader">
+                        <span class="icon">🗺️</span>
+                        <span class="label" data-i18n="nav_map_category">올공이 지도</span>
+                        <span class="expand-icon">▼</span>
+                    </button>
+                    <div class="nav-group-content" id="mapGroupContent">
+                        <button class="nav-item nav-sub-item" data-tab="wayfinding">
+                            <span class="icon">📍</span>
+                            <span class="label" data-i18n="nav_map_guide">Map Guide</span>
+                        </button>
+                        <button class="nav-item nav-sub-item" data-tab="facility">
+                            <span class="icon">🚻</span>
+                            <span class="label" data-i18n="nav_nearest_facility">Nearest Facility</span>
+                        </button>
+                    </div>
+                </div>
             </nav>
 
             <div class="sidebar-footer">

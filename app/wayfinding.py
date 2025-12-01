@@ -12,12 +12,15 @@ import matplotlib.image as mpimg
 from scipy.spatial import KDTree
 import numpy as np
 from matplotlib import font_manager, rc
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+from matplotlib.patches import Circle
 import platform
 import os
 from pathlib import Path
 import io
 import base64
 from app.logger import get_logger
+from PIL import Image, ImageDraw
 
 logger = get_logger()
 
@@ -52,12 +55,16 @@ class WayfindingService:
         self.map_image_path = self.map_dir / '올공맵.png'
         self.roads_geojson_path = self.map_dir / 'roads.geojson'
         self.facilities_json_path = self.map_dir / 'olympic_facilities.json'
+        self.mascot_image_path = Path('static/images/mascot_profile.png')
 
         # 좌표 보정값
         self.CALIB_X_OFFSET = 33.0
         self.CALIB_Y_OFFSET = 33.0
         self.CALIB_X_SCALE = 1.0
         self.CALIB_Y_SCALE = 1.0
+
+        # 거리 환산 (800 픽셀 = 2km)
+        self.PIXEL_TO_KM = 2.0 / 800.0  # 1 픽셀 = 0.0025 km
 
         # 캐시된 데이터
         self._graph = None
@@ -66,6 +73,52 @@ class WayfindingService:
         self._node_list = None
 
         logger.info(f"WayfindingService initialized with map_dir: {map_dir}")
+
+    def create_circular_mascot(self, border_color, size=100):
+        """원형 액자에 마스코트 이미지를 넣어서 반환"""
+        try:
+            # 마스코트 이미지 로드
+            mascot = Image.open(str(self.mascot_image_path)).convert('RGBA')
+
+            # 정사각형으로 크롭 (중앙 기준)
+            width, height = mascot.size
+            min_dim = min(width, height)
+            left = (width - min_dim) // 2
+            top = (height - min_dim) // 2
+            mascot = mascot.crop((left, top, left + min_dim, top + min_dim))
+
+            # 리사이즈
+            mascot = mascot.resize((size, size), Image.Resampling.LANCZOS)
+
+            # 원형 마스크 생성
+            mask = Image.new('L', (size, size), 0)
+            draw = ImageDraw.Draw(mask)
+            draw.ellipse((0, 0, size, size), fill=255)
+
+            # 마스크 적용
+            output = Image.new('RGBA', (size, size), (0, 0, 0, 0))
+            output.paste(mascot, (0, 0), mask)
+
+            # 테두리가 있는 캔버스 생성
+            border_width = 6
+            canvas_size = size + border_width * 2
+            canvas = Image.new('RGBA', (canvas_size, canvas_size), (0, 0, 0, 0))
+
+            # 흰색 배경 원 그리기
+            draw_canvas = ImageDraw.Draw(canvas)
+            draw_canvas.ellipse((0, 0, canvas_size, canvas_size), fill='white')
+
+            # 색상 테두리 원 그리기
+            draw_canvas.ellipse((0, 0, canvas_size, canvas_size), outline=border_color, width=border_width)
+
+            # 마스코트 이미지를 중앙에 배치
+            canvas.paste(output, (border_width, border_width), output)
+
+            return np.array(canvas)
+
+        except Exception as e:
+            logger.error(f"Failed to create circular mascot: {e}")
+            return None
 
     def load_graph_data(self):
         """도로망 그래프 및 시설물 데이터 로드 (캐싱)"""
@@ -225,12 +278,33 @@ class WayfindingService:
 
             ax.plot(path_x, path_y, color='red', linewidth=2, label='추천 경로', alpha=0.5)
 
-            # 출발지/도착지 표시
-            ax.scatter(*start_coords, color='blue', s=150, label='출발', zorder=5, edgecolors='white', linewidth=1.5)
-            ax.scatter(*end_coords, color='green', s=150, label='도착', zorder=5, edgecolors='white', linewidth=1.5)
+            # 출발지/도착지 표시 (원형 액자 마스코트)
+            if self.mascot_image_path.exists():
+                # 출발지 원형 마스코트 (파란색 테두리)
+                start_mascot = self.create_circular_mascot('#3399ff', size=50)
+                if start_mascot is not None:
+                    imagebox_start = OffsetImage(start_mascot, zoom=0.5)
+                    ab_start = AnnotationBbox(imagebox_start, start_coords, frameon=False,
+                                              box_alignment=(0.5, 0.5))
+                    ax.add_artist(ab_start)
+                else:
+                    ax.scatter(*start_coords, color='#3399ff', s=250, zorder=5, edgecolors='white', linewidth=3, alpha=0.9)
+
+                # 도착지 원형 마스코트 (초록색 테두리)
+                end_mascot = self.create_circular_mascot('#33ff99', size=50)
+                if end_mascot is not None:
+                    imagebox_end = OffsetImage(end_mascot, zoom=0.5)
+                    ab_end = AnnotationBbox(imagebox_end, end_coords, frameon=False,
+                                           box_alignment=(0.5, 0.5))
+                    ax.add_artist(ab_end)
+                else:
+                    ax.scatter(*end_coords, color='#33ff99', s=250, zorder=5, edgecolors='white', linewidth=3, alpha=0.9)
+            else:
+                # 마스코트 파일이 없으면 원으로 표시
+                ax.scatter(*start_coords, color='#3399ff', s=250, zorder=5, edgecolors='white', linewidth=3, alpha=0.9)
+                ax.scatter(*end_coords, color='#33ff99', s=250, zorder=5, edgecolors='white', linewidth=3, alpha=0.9)
 
             # 꾸미기
-            ax.legend(loc='upper right')
             ax.axis('off')
 
             # 이미지를 base64로 인코딩
@@ -240,13 +314,17 @@ class WayfindingService:
             image_base64 = base64.b64encode(buf.read()).decode('utf-8')
             plt.close(fig)
 
-            logger.info(f"Path found successfully: distance={path_length:.2f}")
+            # 거리를 km로 환산
+            distance_km = path_length * self.PIXEL_TO_KM
+
+            logger.info(f"Path found successfully: distance={path_length:.2f} pixels ({distance_km:.2f} km)")
 
             return {
                 'success': True,
                 'message': f'{start_name}에서 {end_name}까지의 최단 경로입니다!',
                 'image': image_base64,
-                'distance': float(path_length),
+                'distance': float(distance_km),
+                'distance_pixels': float(path_length),
                 'start': start_name,
                 'end': end_name
             }
@@ -359,12 +437,33 @@ class WayfindingService:
 
             ax.plot(path_x, path_y, color='red', linewidth=3, label='추천 경로', alpha=0.7)
 
-            # 출발지/도착지 표시
-            ax.scatter(start_x, start_y, color='blue', s=200, label='출발', zorder=5, edgecolors='white', linewidth=2)
-            ax.scatter(end_x, end_y, color='green', s=200, label='도착', zorder=5, edgecolors='white', linewidth=2)
+            # 출발지/도착지 표시 (원형 액자 마스코트)
+            if self.mascot_image_path.exists():
+                # 출발지 원형 마스코트 (파란색 테두리)
+                start_mascot = self.create_circular_mascot('#3399ff', size=50)
+                if start_mascot is not None:
+                    imagebox_start = OffsetImage(start_mascot, zoom=0.5)
+                    ab_start = AnnotationBbox(imagebox_start, (start_x, start_y), frameon=False,
+                                              box_alignment=(0.5, 0.5))
+                    ax.add_artist(ab_start)
+                else:
+                    ax.scatter(start_x, start_y, color='#3399ff', s=250, zorder=5, edgecolors='white', linewidth=3, alpha=0.9)
+
+                # 도착지 원형 마스코트 (초록색 테두리)
+                end_mascot = self.create_circular_mascot('#33ff99', size=50)
+                if end_mascot is not None:
+                    imagebox_end = OffsetImage(end_mascot, zoom=0.5)
+                    ab_end = AnnotationBbox(imagebox_end, (end_x, end_y), frameon=False,
+                                           box_alignment=(0.5, 0.5))
+                    ax.add_artist(ab_end)
+                else:
+                    ax.scatter(end_x, end_y, color='#33ff99', s=250, zorder=5, edgecolors='white', linewidth=3, alpha=0.9)
+            else:
+                # 마스코트 파일이 없으면 원으로 표시
+                ax.scatter(start_x, start_y, color='#3399ff', s=250, zorder=5, edgecolors='white', linewidth=3, alpha=0.9)
+                ax.scatter(end_x, end_y, color='#33ff99', s=250, zorder=5, edgecolors='white', linewidth=3, alpha=0.9)
 
             # 꾸미기
-            ax.legend(loc='upper right', fontsize=10)
             ax.axis('off')
 
             # 이미지를 base64로 인코딩
@@ -374,13 +473,17 @@ class WayfindingService:
             image_base64 = base64.b64encode(buf.read()).decode('utf-8')
             plt.close(fig)
 
-            logger.info(f"Path found successfully: distance={path_length:.2f}")
+            # 거리를 km로 환산
+            distance_km = path_length * self.PIXEL_TO_KM
+
+            logger.info(f"Path found successfully: distance={path_length:.2f} pixels ({distance_km:.2f} km)")
 
             return {
                 'success': True,
                 'message': '최단 경로를 찾았습니다!',
                 'image': image_base64,
-                'distance': float(path_length),
+                'distance': float(distance_km),
+                'distance_pixels': float(path_length),
                 'start_coords': {'x': start_x, 'y': start_y},
                 'end_coords': {'x': end_x, 'y': end_y}
             }

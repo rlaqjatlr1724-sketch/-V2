@@ -1,4 +1,4 @@
-# Gemini File Search UI
+[# Gemini File Search UI
 
 **언어:** [English](README.md) | [한국어](README.ko.md) | [日本語](README.ja.md) | [中文](README.zh.md)
 
@@ -110,7 +110,7 @@ Google의 Gemini API File Search 기능을 사용한 의미론적 검색 및 문
 
 MIT 라이선스
 
-## 관련 문서
+##]() 관련 문서
 
 - [Google Gemini API 문서](https://ai.google.dev/)
 - [File Search API 가이드](https://ai.google.dev/api/file-search/)

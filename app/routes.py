@@ -204,14 +204,15 @@ def upload_file():
         logger.debug(f'File upload started - Filename: {file.filename} - IP: {client_ip}')
 
         # 임시 파일에 저장
+        original_filename = file.filename  # 원본 파일명 저장
         with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(file.filename)[1]) as tmp:
             file.save(tmp.name)
             tmp_path = tmp.name
 
         try:
-            # Gemini Files API를 통해 파일 업로드
+            # Gemini Files API를 통해 파일 업로드 (원본 파일명을 display_name으로 전달)
             gemini = GeminiClient(current_app.config['GEMINI_API_KEY'])
-            result = gemini.upload_file(tmp_path)
+            result = gemini.upload_file(tmp_path, display_name=original_filename)
 
             if result['success']:
                 logger.info(f'File upload successful - Filename: {file.filename} - File ID: {result.get("file_id")} - IP: {client_ip}')
@@ -333,6 +334,52 @@ def delete_file(file_id):
 
     except Exception as e:
         logger.error(f'File deletion exception occurred - File ID: {file_id} - IP: {client_ip} - Error: {str(e)}', exc_info=True)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@bp.route('/api/documents/<path:document_name>', methods=['DELETE'])
+def delete_document(document_name):
+    """FileSearchStore 내부 문서 삭제 (REST API)"""
+    logger = get_logger()
+    client_ip = request.remote_addr
+
+    try:
+        logger.info(f'Document deletion request - Document: {document_name} - IP: {client_ip}')
+
+        gemini = GeminiClient(current_app.config['GEMINI_API_KEY'])
+        result = gemini.delete_document_from_store(document_name)
+
+        if result['success']:
+            logger.info(f'Document deletion successful - Document: {document_name} - IP: {client_ip}')
+            return jsonify(result), 200
+        else:
+            logger.error(f'Document deletion failed - Document: {document_name} - Error: {result.get("error")} - IP: {client_ip}')
+            return jsonify(result), 400
+
+    except Exception as e:
+        logger.error(f'Document deletion exception occurred - Document: {document_name} - IP: {client_ip} - Error: {str(e)}', exc_info=True)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@bp.route('/api/stores/<path:store_name>/documents', methods=['DELETE'])
+def delete_all_documents(store_name):
+    """FileSearchStore 내부 모든 문서 삭제"""
+    logger = get_logger()
+    client_ip = request.remote_addr
+
+    try:
+        logger.info(f'Delete all documents request - Store: {store_name} - IP: {client_ip}')
+
+        gemini = GeminiClient(current_app.config['GEMINI_API_KEY'])
+        result = gemini.delete_all_documents_from_store(store_name)
+
+        if result['success']:
+            logger.info(f'Delete all documents successful - Store: {store_name} - Deleted: {result["deleted_count"]}/{result["total_count"]} - IP: {client_ip}')
+            return jsonify(result), 200
+        else:
+            logger.error(f'Delete all documents failed - Store: {store_name} - Error: {result.get("error")} - IP: {client_ip}')
+            return jsonify(result), 400
+
+    except Exception as e:
+        logger.error(f'Delete all documents exception occurred - Store: {store_name} - IP: {client_ip} - Error: {str(e)}', exc_info=True)
         return jsonify({'success': False, 'error': str(e)}), 500
 
 # ==================== Search ====================
@@ -493,17 +540,19 @@ def import_file_to_store():
         data = request.get_json()
         file_id = data.get('file_id', '').strip()
         store_name = data.get('store_name', '').strip()
+        original_filename = data.get('original_filename', '').strip()
 
         if not file_id or not store_name:
             logger.warning(f'File ID or store name is missing - IP: {client_ip}')
             return jsonify({'success': False, 'error': 'File ID and store name are required'}), 400
 
-        logger.debug(f'File import attempt - File: {file_id} - Store: {store_name} - IP: {client_ip}')
+        logger.debug(f'File import attempt - File: {file_id} - Store: {store_name} - Filename: {original_filename} - IP: {client_ip}')
 
         gemini = GeminiClient(current_app.config['GEMINI_API_KEY'])
         result = gemini.import_file_to_store(
             file_id=file_id,
-            store_name=store_name
+            store_name=store_name,
+            original_filename=original_filename
         )
 
         if result['success']:

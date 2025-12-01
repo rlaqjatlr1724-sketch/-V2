@@ -16,9 +16,10 @@ const state = {
 const translations = {
     ko: {
         // Navigation
-        'nav_chat_search': 'Chat Search',
-        'nav_map_guide': 'Map Guide',
-        'nav_nearest_facility': 'Nearest Facility',
+        'nav_chat_search': '올공이 챗봇',
+        'nav_map_category': '올공이 지도',
+        'nav_map_guide': '올림픽공원 약도',
+        'nav_nearest_facility': '가까운 시설물',
 
         // Section Headers
         'company_name': '한국체육산업개발(주)',
@@ -74,8 +75,9 @@ const translations = {
     },
     en: {
         // Navigation
-        'nav_chat_search': 'Chat Search',
-        'nav_map_guide': 'Map Guide',
+        'nav_chat_search': 'Olgongi Chatbot',
+        'nav_map_category': 'Olgongi Map',
+        'nav_map_guide': 'Olympic Park Map',
         'nav_nearest_facility': 'Nearest Facility',
 
         // Section Headers
@@ -132,9 +134,10 @@ const translations = {
     },
     zh: {
         // Navigation
-        'nav_chat_search': 'Chat Search',
-        'nav_map_guide': 'Map Guide',
-        'nav_nearest_facility': 'Nearest Facility',
+        'nav_chat_search': '奥公聊天机器人',
+        'nav_map_category': '奥公地图',
+        'nav_map_guide': '奥林匹克公园地图',
+        'nav_nearest_facility': '最近设施',
 
         // Section Headers
         'company_name': '韩国体育产业开发株式会社',
@@ -190,9 +193,10 @@ const translations = {
     },
     ja: {
         // Navigation
-        'nav_chat_search': 'Chat Search',
-        'nav_map_guide': 'Map Guide',
-        'nav_nearest_facility': 'Nearest Facility',
+        'nav_chat_search': 'オルゴンイチャットボット',
+        'nav_map_category': 'オルゴンイマップ',
+        'nav_map_guide': 'オリンピック公園地図',
+        'nav_nearest_facility': '最寄りの施設',
 
         // Section Headers
         'company_name': '韓国体育産業開発株式会社',
@@ -248,9 +252,10 @@ const translations = {
     },
     vi: {
         // Navigation
-        'nav_chat_search': 'Chat Search',
-        'nav_map_guide': 'Map Guide',
-        'nav_nearest_facility': 'Nearest Facility',
+        'nav_chat_search': 'Chatbot Olgongi',
+        'nav_map_category': 'Bản đồ Olgongi',
+        'nav_map_guide': 'Bản đồ Công viên Olympic',
+        'nav_nearest_facility': 'Cơ sở Gần nhất',
 
         // Section Headers
         'company_name': 'Công ty Phát triển Công nghiệp Thể thao Hàn Quốc',
@@ -343,9 +348,24 @@ document.addEventListener('DOMContentLoaded', () => {
 // ============================================================================
 function setupEventListeners() {
     // Tab navigation
-    document.querySelectorAll('.nav-item').forEach(item => {
+    document.querySelectorAll('.nav-item[data-tab]').forEach(item => {
         item.addEventListener('click', handleTabChange);
     });
+
+    // Navigation group toggle
+    const mapGroupHeader = document.getElementById('mapGroupHeader');
+    const mapGroupContent = document.getElementById('mapGroupContent');
+
+    if (mapGroupHeader && mapGroupContent) {
+        mapGroupHeader.addEventListener('click', () => {
+            mapGroupHeader.classList.toggle('expanded');
+            mapGroupContent.classList.toggle('expanded');
+        });
+
+        // 기본적으로 확장된 상태로 시작
+        mapGroupHeader.classList.add('expanded');
+        mapGroupContent.classList.add('expanded');
+    }
 
     // File upload (only if elements exist)
     if (uploadArea && fileInput) {
@@ -469,7 +489,7 @@ function handleFiles(files) {
 }
 
 // ============================================================================
-// File Upload and Auto Import
+// File Upload to Files API (My Files)
 // ============================================================================
 async function uploadFile(file, index, total) {
     const formData = new FormData();
@@ -489,7 +509,6 @@ async function uploadFile(file, index, total) {
     uploadStatus.appendChild(statusItem);
 
     try {
-        // 1. Upload file
         const uploadResponse = await fetch('/api/files/upload', {
             method: 'POST',
             body: formData
@@ -501,52 +520,16 @@ async function uploadFile(file, index, total) {
             throw new Error(uploadData.error || 'Upload failed');
         }
 
-        const fileId = uploadData.file_id;
-
         // Show upload success
-        statusItem.querySelector('.status-message').textContent = 'Upload completed, importing to store...';
-
-        // 2. Auto import to default store if available
-        if (state.stores.length > 0) {
-            const defaultStore = state.stores[0];
-
-            const importResponse = await fetch(`/api/files/${fileId}/import`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    store_id: defaultStore.store_id
-                })
-            });
-
-            const importData = await importResponse.json();
-
-            if (!importData.success) {
-                throw new Error(importData.error || 'Import failed');
-            }
-
-            statusItem.classList.add('success');
-            statusItem.innerHTML = `
-                <div class="status-icon">✓</div>
-                <div class="status-content">
-                    <div class="status-title">${fileName}</div>
-                    <div class="status-message">Upload and import completed (${defaultStore.name})</div>
-                </div>
-            `;
-            showToast(`${fileName} uploaded and imported successfully`, 'success');
-        } else {
-            // If no store, just upload
-            statusItem.classList.add('success');
-            statusItem.innerHTML = `
-                <div class="status-icon">✓</div>
-                <div class="status-content">
-                    <div class="status-title">${fileName}</div>
-                    <div class="status-message">Upload completed (no store)</div>
-                </div>
-            `;
-            showToast(`${fileName} uploaded successfully (create a FileStore first)`, 'warning');
-        }
+        statusItem.classList.add('success');
+        statusItem.innerHTML = `
+            <div class="status-icon">✓</div>
+            <div class="status-content">
+                <div class="status-title">${fileName}</div>
+                <div class="status-message">Upload completed to My Files</div>
+            </div>
+        `;
+        showToast(`${fileName} uploaded successfully to My Files`, 'success');
 
         // Refresh file list when all uploads complete
         if (document.querySelectorAll('.status-item.success').length === total) {
@@ -622,7 +605,6 @@ function renderFiles() {
                 <div class="file-card-header">
                     <div class="file-icon">${getFileIcon(fileName)}</div>
                     <div class="file-card-actions">
-                        <button title="Preview" onclick="previewFile('${fileId}', '${fileName}')">👁️</button>
                         <button title="Move to FileStore" onclick="showImportPanel('${fileId}', '${fileName}')">📤</button>
                         <button title="Delete" onclick="deleteFile('${fileId}', '${fileName}')">🗑️</button>
                     </div>
@@ -692,15 +674,22 @@ async function previewFile(fileId, fileName) {
             return;
         }
 
-        if (data.mime_type?.startsWith('application/pdf')) {
-            window.open(data.uri, '_blank');
-        } else if (data.mime_type?.startsWith('text/')) {
-            alert(`File: ${fileName}\nSize: ${(data.size_bytes / 1024 / 1024).toFixed(2)} MB\n\nFile info: ${data.uri}`);
-        } else {
-            window.open(data.uri, '_blank');
-        }
+        // Files API files cannot be accessed directly in browser
+        // Show file information instead
+        const sizeInMB = (data.size_bytes / 1024 / 1024).toFixed(2);
+        const createTime = data.create_time ? new Date(data.create_time).toLocaleString('ko-KR') : 'Unknown';
 
-        showToast(`Opening ${fileName} preview`, 'success');
+        alert(
+            `File Information:\n\n` +
+            `Name: ${fileName}\n` +
+            `Type: ${data.mime_type || 'Unknown'}\n` +
+            `Size: ${sizeInMB} MB\n` +
+            `Created: ${createTime}\n\n` +
+            `Note: Files in "My Files" cannot be previewed directly.\n` +
+            `Please import to FileStore to use in search.`
+        );
+
+        showToast(`Showing ${fileName} information`, 'info');
     } catch (error) {
         showToast(`Preview error: ${error.message}`, 'error');
     }
@@ -737,21 +726,40 @@ async function loadStores() {
 }
 
 function updateStoreSelects() {
+    // Update main upload storeSelect
+    const storeSelect = document.getElementById('storeSelect');
+    if (storeSelect) {
+        const selectedValue = storeSelect.value;
+        storeSelect.innerHTML = '<option value="">Select FileStore...</option>';
+
+        state.stores.forEach(store => {
+            const option = document.createElement('option');
+            option.value = store.store_name;
+            option.textContent = store.display_name;
+            storeSelect.appendChild(option);
+        });
+
+        if (selectedValue) {
+            storeSelect.value = selectedValue;
+        }
+    }
+
+    // Update FileStore tab storeSelectForUpload
     const storeSelectForUpload = document.getElementById('storeSelectForUpload');
-    if (!storeSelectForUpload) return; // Exit if element doesn't exist
+    if (storeSelectForUpload) {
+        const selectedValue = storeSelectForUpload.value;
+        storeSelectForUpload.innerHTML = '<option value="">Select FileStore...</option>';
 
-    const selectedValue = storeSelectForUpload.value;
-    storeSelectForUpload.innerHTML = '<option value="">Select FileStore...</option>';
+        state.stores.forEach(store => {
+            const option = document.createElement('option');
+            option.value = store.store_name;
+            option.textContent = store.display_name;
+            storeSelectForUpload.appendChild(option);
+        });
 
-    state.stores.forEach(store => {
-        const option = document.createElement('option');
-        option.value = store.store_name;
-        option.textContent = store.display_name;
-        storeSelectForUpload.appendChild(option);
-    });
-
-    if (selectedValue) {
-        storeSelectForUpload.value = selectedValue;
+        if (selectedValue) {
+            storeSelectForUpload.value = selectedValue;
+        }
     }
 }
 
@@ -1268,7 +1276,8 @@ async function confirmImportFile() {
             },
             body: JSON.stringify({
                 file_id: selectedFileForImport.file_id,
-                store_name: storeName
+                store_name: storeName,
+                original_filename: selectedFileForImport.display_name
             })
         });
 
@@ -1315,14 +1324,41 @@ async function showStoreDocuments(storeName, displayName) {
             const documentListHtml = documents.length > 0
                 ? `
                     <div class="store-documents">
-                        <h4>Stored Documents (${documentCount})</h4>
+                        <div class="documents-header">
+                            <h4>Stored Documents (${documentCount})</h4>
+                            <button class="btn btn-danger" onclick="deleteAllDocuments('${storeName}', '${displayName}')">Delete All</button>
+                        </div>
                         <ul class="document-list">
-                            ${documents.map(doc => `
-                                <li class="document-item">
-                                    <span class="doc-name">${doc.display_name || 'Untitled'}</span>
-                                    <span class="doc-type">${doc.mime_type || 'Unknown'}</span>
-                                </li>
-                            `).join('')}
+                            ${documents.map((doc, index) => {
+                                // Extract file extension from mime_type for better display
+                                const mimeType = doc.mime_type || 'Unknown';
+                                const fileExt = mimeType.split('/').pop().toUpperCase();
+
+                                // Format file size
+                                const sizeInMB = doc.size_bytes ? (doc.size_bytes / (1024 * 1024)).toFixed(2) + ' MB' : 'Unknown size';
+
+                                // Format date
+                                const createDate = doc.create_time ? new Date(doc.create_time).toLocaleDateString('ko-KR') : '';
+
+                                // Display name with fallback
+                                const displayName = doc.display_name || `Document ${index + 1}`;
+
+                                return `
+                                    <li class="document-item">
+                                        <div class="doc-info">
+                                            <span class="doc-name" title="${doc.document_name}">${displayName}</span>
+                                            <div class="doc-details">
+                                                <span class="doc-type">${fileExt}</span>
+                                                <span class="doc-size">${sizeInMB}</span>
+                                                ${createDate ? `<span class="doc-date">${createDate}</span>` : ''}
+                                            </div>
+                                        </div>
+                                        <div class="doc-actions">
+                                            <button class="btn btn-danger btn-sm" onclick="deleteDocument('${doc.document_name}', '${displayName}', '${storeName}', '${displayName}')">Delete</button>
+                                        </div>
+                                    </li>
+                                `;
+                            }).join('')}
                         </ul>
                     </div>
                 `
@@ -1342,6 +1378,71 @@ async function showStoreDocuments(storeName, displayName) {
         }
     } catch (error) {
         showToast(`Error: ${error.message}`, 'error');
+    }
+}
+
+async function deleteDocument(documentName, displayName, storeName, storeDisplayName) {
+    if (!confirm(`Delete "${displayName}" from ${storeDisplayName}?\n\nNote: This will delete the document from the FileStore, but the original file in "My Files" (if it exists) will be preserved.`)) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/documents/${encodeURIComponent(documentName)}`, {
+            method: 'DELETE'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showToast(`${displayName} deleted successfully`, 'success');
+            // Refresh the document list for this store
+            showStoreDocuments(storeName, storeDisplayName);
+            // Also refresh the stores list to update counts
+            setTimeout(() => loadStores(), 1000);
+        } else {
+            throw new Error(data.error);
+        }
+    } catch (error) {
+        showToast(`Delete failed: ${error.message}`, 'error');
+    }
+}
+
+async function deleteAllDocuments(storeName, storeDisplayName) {
+    if (!confirm(`⚠️ WARNING: Delete ALL documents from "${storeDisplayName}"?\n\nThis will permanently delete ALL documents in this FileStore.\nThis action cannot be undone!\n\nNote: Original files in "My Files" (if they exist) will be preserved.`)) {
+        return;
+    }
+
+    // Double confirmation for safety
+    if (!confirm(`Are you absolutely sure?\n\nThis will delete ALL documents from "${storeDisplayName}".`)) {
+        return;
+    }
+
+    try {
+        showToast('Deleting all documents... This may take a while.', 'info');
+
+        const response = await fetch(`/api/stores/${encodeURIComponent(storeName)}/documents`, {
+            method: 'DELETE'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            const message = `Successfully deleted ${data.deleted_count} out of ${data.total_count} documents`;
+            showToast(message, 'success');
+
+            if (data.failed_count > 0) {
+                console.error('Failed deletions:', data.errors);
+                showToast(`Warning: ${data.failed_count} documents failed to delete. Check console for details.`, 'warning');
+            }
+
+            // Refresh the document list and stores list
+            showStoreDocuments(storeName, storeDisplayName);
+            setTimeout(() => loadStores(), 1000);
+        } else {
+            throw new Error(data.error);
+        }
+    } catch (error) {
+        showToast(`Delete all failed: ${error.message}`, 'error');
     }
 }
 
@@ -1546,7 +1647,7 @@ async function findPathFromCoords() {
         const lang = state.currentLanguage || 'ko';
 
         if (data.success) {
-            pathDistance.textContent = `${data.distance.toFixed(2)} 픽셀`;
+            pathDistance.textContent = `${data.distance.toFixed(2)} km`;
             pathImage.src = `data:image/png;base64,${data.image}`;
 
             // 초기 지도 숨기고 결과 표시
@@ -1609,7 +1710,7 @@ async function findNearestFacility(x, y) {
         const lang = state.currentLanguage || 'ko';
 
         if (data.success) {
-            facilityPathDistance.textContent = `${data.distance.toFixed(2)} 픽셀`;
+            facilityPathDistance.textContent = `${data.distance.toFixed(2)} km`;
             facilityPathImage.src = `data:image/png;base64,${data.image}`;
 
             // 초기 지도 숨기고 결과 표시
