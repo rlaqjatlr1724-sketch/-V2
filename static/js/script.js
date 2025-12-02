@@ -325,6 +325,7 @@ const searchBtn = document.getElementById('searchBtn');
 const searchLoading = document.getElementById('searchLoading');
 const toast = document.getElementById('toast');
 const refreshFilesBtn = document.getElementById('refreshFilesBtn');
+const deleteAllFilesBtn = document.getElementById('deleteAllFilesBtn');
 const selectAllBtn = document.getElementById('selectAllBtn');
 const chatHistory = document.getElementById('chatHistory');
 const clearChatBtn = document.getElementById('clearChatBtn');
@@ -381,6 +382,10 @@ function setupEventListeners() {
         refreshFilesBtn.addEventListener('click', loadFiles);
     }
 
+    if (deleteAllFilesBtn) {
+        deleteAllFilesBtn.addEventListener('click', deleteAllFiles);
+    }
+
     // Search
     if (searchBtn) {
         searchBtn.addEventListener('click', performSearch);
@@ -420,6 +425,12 @@ function setupEventListeners() {
         storeSelectForUpload.addEventListener('change', () => {
             // Simple handler for store selection
         });
+    }
+
+    // Active store configuration
+    const setActiveStoreBtn = document.getElementById('setActiveStoreBtn');
+    if (setActiveStoreBtn) {
+        setActiveStoreBtn.addEventListener('click', setActiveStore);
     }
 }
 
@@ -526,10 +537,10 @@ async function uploadFile(file, index, total) {
             <div class="status-icon">✓</div>
             <div class="status-content">
                 <div class="status-title">${fileName}</div>
-                <div class="status-message">Upload completed to My Files</div>
+                <div class="status-message">임시 저장소에 업로드 완료</div>
             </div>
         `;
-        showToast(`${fileName} uploaded successfully to My Files`, 'success');
+        showToast(`${fileName} 임시 저장소에 업로드 완료`, 'success');
 
         // Refresh file list when all uploads complete
         if (document.querySelectorAll('.status-item.success').length === total) {
@@ -574,7 +585,7 @@ async function loadFiles() {
             filesList.innerHTML = `
                 <div class="empty-state">
                     <div class="empty-icon">❌</div>
-                    <p>Failed to load files: ${error.message}</p>
+                    <p>파일 로드 실패: ${error.message}</p>
                 </div>
             `;
         }
@@ -588,7 +599,7 @@ function renderFiles() {
         filesList.innerHTML = `
             <div class="empty-state">
                 <div class="empty-icon">📭</div>
-                <p>No uploaded files yet</p>
+                <p>업로드된 파일이 없습니다</p>
             </div>
         `;
         return;
@@ -597,7 +608,7 @@ function renderFiles() {
     filesList.innerHTML = state.files.map(file => {
         const sizeInMB = (file.size_bytes / (1024 * 1024)).toFixed(2);
         const fileName = file.display_name;
-        const date = new Date(file.create_time).toLocaleDateString('en-US');
+        const date = new Date(file.create_time).toLocaleDateString('ko-KR');
         const fileId = file.file_id;
 
         return `
@@ -605,8 +616,8 @@ function renderFiles() {
                 <div class="file-card-header">
                     <div class="file-icon">${getFileIcon(fileName)}</div>
                     <div class="file-card-actions">
-                        <button title="Move to FileStore" onclick="showImportPanel('${fileId}', '${fileName}')">📤</button>
-                        <button title="Delete" onclick="deleteFile('${fileId}', '${fileName}')">🗑️</button>
+                        <button title="파일 저장소로 이동" onclick="showImportPanel('${fileId}', '${fileName}')">📤</button>
+                        <button title="삭제" onclick="deleteFile('${fileId}', '${fileName}')">🗑️</button>
                     </div>
                 </div>
                 <div class="file-name" title="${fileName}">${fileName}</div>
@@ -639,7 +650,7 @@ function getFileIcon(fileName) {
 }
 
 async function deleteFile(fileId, fileName) {
-    if (!confirm(`Delete "${fileName}"?`)) {
+    if (!confirm(`"${fileName}" 파일을 삭제하시겠습니까?`)) {
         return;
     }
 
@@ -651,14 +662,52 @@ async function deleteFile(fileId, fileName) {
         const data = await response.json();
 
         if (data.success) {
-            showToast(`${fileName} deleted successfully`, 'success');
+            showToast(`${fileName} 삭제 완료`, 'success');
             loadFiles();
             loadStores();
         } else {
             throw new Error(data.error);
         }
     } catch (error) {
-        showToast(`Delete failed: ${error.message}`, 'error');
+        showToast(`삭제 실패: ${error.message}`, 'error');
+    }
+}
+
+async function deleteAllFiles() {
+    if (!confirm(`⚠️ 경고: 임시 저장소의 모든 파일을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다!`)) {
+        return;
+    }
+
+    // 이중 확인
+    if (!confirm(`정말로 모든 파일을 삭제하시겠습니까?`)) {
+        return;
+    }
+
+    try {
+        showToast('모든 파일 삭제 중...', 'info');
+
+        const response = await fetch('/api/files/delete-all', {
+            method: 'DELETE'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            const message = `${data.deleted_count}개 파일 삭제 완료`;
+            showToast(message, 'success');
+
+            if (data.failed_count > 0) {
+                console.error('삭제 실패:', data.errors);
+                showToast(`경고: ${data.failed_count}개 파일 삭제 실패. 콘솔 확인 필요.`, 'warning');
+            }
+
+            loadFiles();
+            loadStores();
+        } else {
+            throw new Error(data.error);
+        }
+    } catch (error) {
+        showToast(`전체 삭제 실패: ${error.message}`, 'error');
     }
 }
 
@@ -670,28 +719,28 @@ async function previewFile(fileId, fileName) {
         const data = await response.json();
 
         if (!data.success) {
-            showToast(`Preview unavailable: ${data.error}`, 'error');
+            showToast(`미리보기 불가: ${data.error}`, 'error');
             return;
         }
 
         // Files API files cannot be accessed directly in browser
         // Show file information instead
         const sizeInMB = (data.size_bytes / 1024 / 1024).toFixed(2);
-        const createTime = data.create_time ? new Date(data.create_time).toLocaleString('ko-KR') : 'Unknown';
+        const createTime = data.create_time ? new Date(data.create_time).toLocaleString('ko-KR') : '알 수 없음';
 
         alert(
-            `File Information:\n\n` +
-            `Name: ${fileName}\n` +
-            `Type: ${data.mime_type || 'Unknown'}\n` +
-            `Size: ${sizeInMB} MB\n` +
-            `Created: ${createTime}\n\n` +
-            `Note: Files in "My Files" cannot be previewed directly.\n` +
-            `Please import to FileStore to use in search.`
+            `파일 정보:\n\n` +
+            `이름: ${fileName}\n` +
+            `타입: ${data.mime_type || '알 수 없음'}\n` +
+            `크기: ${sizeInMB} MB\n` +
+            `생성일: ${createTime}\n\n` +
+            `참고: 임시 저장소의 파일은 직접 미리보기할 수 없습니다.\n` +
+            `검색에 사용하려면 파일 저장소로 이동하세요.`
         );
 
-        showToast(`Showing ${fileName} information`, 'info');
+        showToast(`${fileName} 정보 표시`, 'info');
     } catch (error) {
-        showToast(`Preview error: ${error.message}`, 'error');
+        showToast(`미리보기 오류: ${error.message}`, 'error');
     }
 }
 
@@ -708,6 +757,7 @@ async function loadStores() {
             renderStores();
             renderStoresForSearch();
             updateStoreSelects();
+            loadActiveStore();
         } else {
             throw new Error(data.error);
         }
@@ -718,7 +768,7 @@ async function loadStores() {
             storesContainer.innerHTML = `
                 <div class="empty-state">
                     <div class="empty-icon">❌</div>
-                    <p>Failed to load stores: ${error.message}</p>
+                    <p>저장소 로드 실패: ${error.message}</p>
                 </div>
             `;
         }
@@ -730,7 +780,7 @@ function updateStoreSelects() {
     const storeSelect = document.getElementById('storeSelect');
     if (storeSelect) {
         const selectedValue = storeSelect.value;
-        storeSelect.innerHTML = '<option value="">Select FileStore...</option>';
+        storeSelect.innerHTML = '<option value="">파일 저장소 선택...</option>';
 
         state.stores.forEach(store => {
             const option = document.createElement('option');
@@ -748,7 +798,7 @@ function updateStoreSelects() {
     const storeSelectForUpload = document.getElementById('storeSelectForUpload');
     if (storeSelectForUpload) {
         const selectedValue = storeSelectForUpload.value;
-        storeSelectForUpload.innerHTML = '<option value="">Select FileStore...</option>';
+        storeSelectForUpload.innerHTML = '<option value="">파일 저장소 선택...</option>';
 
         state.stores.forEach(store => {
             const option = document.createElement('option');
@@ -761,6 +811,46 @@ function updateStoreSelects() {
             storeSelectForUpload.value = selectedValue;
         }
     }
+
+    // Update active store checkboxes
+    const activeStoreCheckboxes = document.getElementById('activeStoreCheckboxes');
+    if (activeStoreCheckboxes && state.stores.length > 0) {
+        activeStoreCheckboxes.innerHTML = state.stores.map(store => `
+            <label style="display: flex; align-items: center; padding: 8px; cursor: pointer; border-radius: 4px; margin-bottom: 4px; transition: background 0.2s;">
+                <input type="checkbox" value="${store.store_name}" class="active-store-checkbox" style="margin-right: 10px; width: 18px; height: 18px; cursor: pointer;">
+                <span style="flex: 1; font-weight: 500;">${store.display_name}</span>
+                <span style="font-size: 12px; color: #666;">${store.active_documents_count || 0} 문서</span>
+            </label>
+        `).join('');
+
+        // Add hover effect
+        activeStoreCheckboxes.querySelectorAll('label').forEach(label => {
+            label.addEventListener('mouseenter', () => {
+                label.style.background = '#f0f0f0';
+            });
+            label.addEventListener('mouseleave', () => {
+                label.style.background = 'transparent';
+            });
+        });
+    }
+
+    // Update import panel store select
+    const storeSelectForImport = document.getElementById('storeSelectForImport');
+    if (storeSelectForImport) {
+        const selectedValue = storeSelectForImport.value;
+        storeSelectForImport.innerHTML = '<option value="">파일 저장소 선택...</option>';
+
+        state.stores.forEach(store => {
+            const option = document.createElement('option');
+            option.value = store.store_name;
+            option.textContent = store.display_name;
+            storeSelectForImport.appendChild(option);
+        });
+
+        if (selectedValue) {
+            storeSelectForImport.value = selectedValue;
+        }
+    }
 }
 
 function renderStores() {
@@ -770,13 +860,13 @@ function renderStores() {
     if (state.stores.length === 0) {
         storesContainer.innerHTML = `
             <div class="create-store-form">
-                <h3>Create New FileSearchStore</h3>
-                <input type="text" id="newStoreName" placeholder="Store name (e.g., Document Store)" class="input-field">
-                <button class="btn btn-primary" onclick="createStore()">Create</button>
+                <h3>새 파일 저장소 만들기</h3>
+                <input type="text" id="newStoreName" placeholder="저장소 이름 (예: 문서 저장소)" class="input-field">
+                <button class="btn btn-primary" onclick="createStore()">만들기</button>
             </div>
             <div class="empty-state">
                 <div class="empty-icon">💾</div>
-                <p>No FileSearchStores created yet</p>
+                <p>생성된 파일 저장소가 없습니다</p>
             </div>
         `;
         return;
@@ -788,39 +878,39 @@ function renderStores() {
         const failedCount = store.failed_documents_count || 0;
         const totalSize = store.size_bytes || 0;
         const sizeInMB = (totalSize / (1024 * 1024)).toFixed(2);
-        const createdDate = new Date(store.create_time).toLocaleDateString('en-US');
+        const createdDate = new Date(store.create_time).toLocaleDateString('ko-KR');
 
         return `
             <div class="store-card" onclick="showStoreDocuments('${store.store_name}', '${store.display_name}')">
                 <div class="store-header">
                     <h3>${store.display_name}</h3>
-                    <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deleteStore('${store.store_name}', '${store.display_name}')">Delete</button>
+                    <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deleteStore('${store.store_name}', '${store.display_name}')" style="opacity: 0.85;">삭제</button>
                 </div>
                 <div class="store-info">
                     <div class="store-stat">
-                        <span class="store-label">Active Documents:</span>
+                        <span class="store-label">활성 문서:</span>
                         <span class="store-value file-count-${store.store_name.replace(/\//g, '-')}">${activeCount}</span>
                     </div>
                     <div class="store-stat">
-                        <span class="store-label">Processing:</span>
+                        <span class="store-label">처리 중:</span>
                         <span class="store-value">${pendingCount}</span>
                     </div>
                     ${failedCount > 0 ? `
                     <div class="store-stat">
-                        <span class="store-label">Failed:</span>
+                        <span class="store-label">실패:</span>
                         <span class="store-value error">${failedCount}</span>
                     </div>
                     ` : ''}
                     <div class="store-stat">
-                        <span class="store-label">Storage:</span>
+                        <span class="store-label">저장 용량:</span>
                         <span class="store-value">${sizeInMB} MB</span>
                     </div>
                     <div class="store-stat">
-                        <span class="store-label">Created:</span>
+                        <span class="store-label">생성일:</span>
                         <span class="store-value">${createdDate}</span>
                     </div>
                     <div class="store-stat">
-                        <span class="store-label">Store ID:</span>
+                        <span class="store-label">저장소 ID:</span>
                         <span class="store-value store-id" style="font-size: 12px;">${store.store_name}</span>
                     </div>
                 </div>
@@ -830,9 +920,9 @@ function renderStores() {
 
     storesContainer.innerHTML = `
         <div class="create-store-form">
-            <h3>Create New FileSearchStore</h3>
-            <input type="text" id="newStoreName" placeholder="Store name (e.g., Document Store)" class="input-field">
-            <button class="btn btn-primary" onclick="createStore()">Create</button>
+            <h3>새 파일 저장소 만들기</h3>
+            <input type="text" id="newStoreName" placeholder="저장소 이름 (예: 문서 저장소)" class="input-field">
+            <button class="btn btn-primary" onclick="createStore()">만들기</button>
         </div>
         <div class="stores-grid">
             ${storeCards}
@@ -862,7 +952,7 @@ async function createStore() {
     const name = nameInput.value.trim();
 
     if (!name) {
-        showToast('Please enter a store name', 'warning');
+        showToast('저장소 이름을 입력하세요', 'warning');
         return;
     }
 
@@ -878,19 +968,19 @@ async function createStore() {
         const data = await response.json();
 
         if (data.success) {
-            showToast(`FileStore "${name}" created successfully`, 'success');
+            showToast(`파일 저장소 "${name}" 생성 완료`, 'success');
             nameInput.value = '';
             loadStores();
         } else {
             throw new Error(data.error);
         }
     } catch (error) {
-        showToast(`Failed to create store: ${error.message}`, 'error');
+        showToast(`저장소 생성 실패: ${error.message}`, 'error');
     }
 }
 
 async function deleteStore(storeId, storeName) {
-    if (!confirm(`Delete FileStore "${storeName}"?\nFiles will be preserved.`)) {
+    if (!confirm(`파일 저장소 "${storeName}"를 삭제하시겠습니까?\n파일은 보존됩니다.`)) {
         return;
     }
 
@@ -902,13 +992,13 @@ async function deleteStore(storeId, storeName) {
         const data = await response.json();
 
         if (data.success) {
-            showToast(`FileStore "${storeName}" deleted successfully`, 'success');
+            showToast(`파일 저장소 "${storeName}" 삭제 완료`, 'success');
             loadStores();
         } else {
             throw new Error(data.error);
         }
     } catch (error) {
-        showToast(`Failed to delete store: ${error.message}`, 'error');
+        showToast(`저장소 삭제 실패: ${error.message}`, 'error');
     }
 }
 
@@ -922,8 +1012,8 @@ function renderStoresForSearch() {
     if (state.stores.length === 0) {
         container.innerHTML = `
             <div class="empty-state">
-                <p>No FileSearchStores available</p>
-                <small>Create a store in the FileStore tab</small>
+                <p>사용 가능한 파일 저장소가 없습니다</p>
+                <small>파일 저장소 탭에서 저장소를 만드세요</small>
             </div>
         `;
         return;
@@ -937,7 +1027,7 @@ function renderStoresForSearch() {
             <label class="checkbox-item">
                 <input type="radio" name="store" value="${store.store_name}" class="store-radio" ${checked}>
                 <span class="checkbox-label">${store.display_name}</span>
-                <span class="checkbox-size">${fileCount} documents</span>
+                <span class="checkbox-size">${fileCount} 문서</span>
             </label>
         `;
     }).join('');
@@ -956,7 +1046,7 @@ function renderStoresForSearch() {
 }
 
 function toggleSelectAll() {
-    showToast('Only one store can be selected', 'info');
+    showToast('하나의 저장소만 선택할 수 있습니다', 'info');
 }
 
 async function performSearch() {
@@ -966,20 +1056,11 @@ async function performSearch() {
         return;
     }
 
-    const selectedRadio = document.querySelector('.store-radio:checked');
-
-    if (!selectedRadio) {
-        showToast('Please select a FileStore to search', 'warning');
-        return;
-    }
-
     const query = searchQuery.value.trim();
     if (!query) {
-        showToast('Please enter a search question', 'warning');
+        showToast('검색할 질문을 입력하세요', 'warning');
         return;
     }
-
-    const storeId = selectedRadio.value;
 
     // Add user message to UI immediately
     addMessageToChat('user', query);
@@ -989,7 +1070,6 @@ async function performSearch() {
     try {
         const requestData = {
             query: query,
-            store_ids: [storeId],
             metadata_filter: null,
             history: state.conversationHistory
         };
@@ -1024,14 +1104,14 @@ async function performSearch() {
 
             console.log('Conversation history updated:', state.conversationHistory);
 
-            showToast('Search completed', 'success');
+            showToast('검색 완료', 'success');
         } else {
             console.error('Search failed:', data.error);
             throw new Error(data.error);
         }
     } catch (error) {
         console.error('Search error:', error);
-        showToast(`Search failed: ${error.message}`, 'error');
+        showToast(`검색 실패: ${error.message}`, 'error');
         // Remove the user message on error
         const messages = chatHistory.querySelectorAll('.chat-message');
         if (messages.length > 0) {
@@ -1097,7 +1177,7 @@ function addMessageToChat(role, text) {
 }
 
 function clearConversation() {
-    if (!confirm('Clear all conversation history?')) {
+    if (!confirm('모든 대화 내역을 지우시겠습니까?')) {
         return;
     }
 
@@ -1106,12 +1186,12 @@ function clearConversation() {
     if (chatHistory) {
         chatHistory.innerHTML = `
             <div class="empty-chat">
-                <p>No conversation yet. Start by asking a question!</p>
+                <p>아직 대화가 없습니다. 질문을 시작해보세요!</p>
             </div>
         `;
     }
 
-    showToast('Conversation cleared', 'success');
+    showToast('대화 내역 삭제 완료', 'success');
 }
 
 // ============================================================================
@@ -1137,12 +1217,14 @@ function handleDropForStore(e) {
     if (files.length > 0) {
         const store = document.getElementById('storeSelectForUpload').value;
         if (!store) {
-            showToast('Please select a FileStore first', 'error');
+            showToast('먼저 파일 저장소를 선택하세요', 'error');
             return;
         }
 
+        const category = document.getElementById('categorySelectForUpload').value;
+
         Array.from(files).forEach(file => {
-            uploadToFileSearchStore(file, store);
+            uploadToFileSearchStore(file, store, category);
         });
     }
 }
@@ -1150,21 +1232,23 @@ function handleDropForStore(e) {
 function handleFileSelectForStore(e) {
     const store = document.getElementById('storeSelectForUpload').value;
     if (!store) {
-        showToast('Please select a FileStore first', 'error');
+        showToast('먼저 파일 저장소를 선택하세요', 'error');
         return;
     }
 
+    const category = document.getElementById('categorySelectForUpload').value;
+
     Array.from(e.target.files).forEach(file => {
-        uploadToFileSearchStore(file, store);
+        uploadToFileSearchStore(file, store, category);
     });
 }
 
-async function uploadToFileSearchStore(file, storeName) {
+async function uploadToFileSearchStore(file, storeName, category) {
     const validExtensions = ['pdf', 'txt', 'doc', 'docx', 'xlsx', 'xls', 'ppt', 'pptx', 'csv', 'json', 'xml', 'html'];
     const ext = file.name.split('.').pop().toLowerCase();
 
     if (!validExtensions.includes(ext)) {
-        showToast(`Unsupported file format: ${file.name}`, 'error');
+        showToast(`지원하지 않는 파일 형식: ${file.name}`, 'error');
         return;
     }
 
@@ -1173,7 +1257,7 @@ async function uploadToFileSearchStore(file, storeName) {
     const progressFill = document.getElementById('progressFillStore');
     const uploadFileName = document.getElementById('uploadToStoreFileName');
 
-    uploadFileName.textContent = `Uploading ${file.name}...`;
+    uploadFileName.textContent = `${file.name} 업로드 중...`;
     uploadProgress.style.display = 'block';
     uploadStatus.innerHTML = '';
 
@@ -1181,6 +1265,9 @@ async function uploadToFileSearchStore(file, storeName) {
         const formData = new FormData();
         formData.append('file', file);
         formData.append('store_name', storeName);
+        if (category) {
+            formData.append('category', category);
+        }
 
         const xhr = new XMLHttpRequest();
 
@@ -1194,8 +1281,8 @@ async function uploadToFileSearchStore(file, storeName) {
         xhr.addEventListener('load', () => {
             if (xhr.status === 201) {
                 const response = JSON.parse(xhr.responseText);
-                showToast(`${file.name} uploaded to FileStore successfully`, 'success');
-                uploadStatus.innerHTML = `<div class="success-message">✅ ${file.name} upload completed</div>`;
+                showToast(`${file.name} 파일 저장소에 업로드 완료`, 'success');
+                uploadStatus.innerHTML = `<div class="success-message">✅ ${file.name} 업로드 완료</div>`;
 
                 setTimeout(() => {
                     loadStores();
@@ -1204,22 +1291,22 @@ async function uploadToFileSearchStore(file, storeName) {
                 }, 2000);
             } else {
                 const error = JSON.parse(xhr.responseText);
-                showToast(`Upload failed: ${error.error || 'Unknown error'}`, 'error');
-                uploadStatus.innerHTML = `<div class="error-message">❌ Upload failed: ${error.error}</div>`;
+                showToast(`업로드 실패: ${error.error || '알 수 없는 오류'}`, 'error');
+                uploadStatus.innerHTML = `<div class="error-message">❌ 업로드 실패: ${error.error}</div>`;
             }
         });
 
         xhr.addEventListener('error', () => {
-            showToast('An error occurred during upload', 'error');
-            uploadStatus.innerHTML = '<div class="error-message">❌ Upload error</div>';
+            showToast('업로드 중 오류 발생', 'error');
+            uploadStatus.innerHTML = '<div class="error-message">❌ 업로드 오류</div>';
         });
 
         xhr.open('POST', '/api/stores/upload');
         xhr.send(formData);
 
     } catch (error) {
-        showToast(`Error: ${error.message}`, 'error');
-        uploadStatus.innerHTML = `<div class="error-message">❌ Error: ${error.message}</div>`;
+        showToast(`오류: ${error.message}`, 'error');
+        uploadStatus.innerHTML = `<div class="error-message">❌ 오류: ${error.message}</div>`;
     }
 }
 
@@ -1238,7 +1325,7 @@ function showImportPanel(fileId, fileName) {
     importPanel.style.display = 'block';
 
     const storeSelect = document.getElementById('storeSelectForImport');
-    storeSelect.innerHTML = '<option value="">Select FileStore...</option>';
+    storeSelect.innerHTML = '<option value="">파일 저장소 선택...</option>';
 
     state.stores.forEach(store => {
         const option = document.createElement('option');
@@ -1255,18 +1342,20 @@ function cancelImportPanel() {
 
 async function confirmImportFile() {
     if (!selectedFileForImport) {
-        showToast('No file selected', 'error');
+        showToast('선택된 파일이 없습니다', 'error');
         return;
     }
 
     const storeName = document.getElementById('storeSelectForImport').value;
     if (!storeName) {
-        showToast('Please select a FileStore', 'error');
+        showToast('파일 저장소를 선택하세요', 'error');
         return;
     }
 
+    const category = document.getElementById('categorySelectForImport').value;
+
     const importStatus = document.getElementById('importStatus');
-    importStatus.innerHTML = '<div class="loading" style="display: flex; align-items: center; gap: 10px;"><div class="spinner"></div><span>Moving file...</span></div>';
+    importStatus.innerHTML = '<div class="loading" style="display: flex; align-items: center; gap: 10px;"><div class="spinner"></div><span>파일 이동 중...</span></div>';
 
     try {
         const response = await fetch('/api/files/import', {
@@ -1277,15 +1366,16 @@ async function confirmImportFile() {
             body: JSON.stringify({
                 file_id: selectedFileForImport.file_id,
                 store_name: storeName,
-                original_filename: selectedFileForImport.display_name
+                original_filename: selectedFileForImport.display_name,
+                category: category || null
             })
         });
 
         const data = await response.json();
 
         if (data.success) {
-            showToast(`${selectedFileForImport.display_name} moved to FileStore successfully`, 'success');
-            importStatus.innerHTML = `<div class="success-message">✅ Move completed</div>`;
+            showToast(`${selectedFileForImport.display_name} 파일 저장소로 이동 완료`, 'success');
+            importStatus.innerHTML = `<div class="success-message">✅ 이동 완료</div>`;
 
             setTimeout(() => {
                 document.getElementById('importPanel').style.display = 'none';
@@ -1293,19 +1383,19 @@ async function confirmImportFile() {
                 selectedFileForImport = null;
             }, 2000);
         } else {
-            showToast(`Move failed: ${data.error || 'Unknown error'}`, 'error');
-            importStatus.innerHTML = `<div class="error-message">❌ Failed: ${data.error}</div>`;
+            showToast(`이동 실패: ${data.error || '알 수 없는 오류'}`, 'error');
+            importStatus.innerHTML = `<div class="error-message">❌ 실패: ${data.error}</div>`;
         }
     } catch (error) {
-        showToast(`Error: ${error.message}`, 'error');
-        importStatus.innerHTML = `<div class="error-message">❌ Error: ${error.message}</div>`;
+        showToast(`오류: ${error.message}`, 'error');
+        importStatus.innerHTML = `<div class="error-message">❌ 오류: ${error.message}</div>`;
     }
 }
 
 // ============================================================================
 // View FileStore Documents
 // ============================================================================
-async function showStoreDocuments(storeName, displayName) {
+async function showStoreDocuments(storeName, displayName, selectedCategory = '') {
     const storesContainer = document.getElementById('storesList');
 
     try {
@@ -1313,8 +1403,15 @@ async function showStoreDocuments(storeName, displayName) {
         const data = await response.json();
 
         if (data.success) {
-            const documents = data.documents || [];
+            const allDocuments = data.documents || [];
             const documentCount = data.count || 0;
+
+            // Get unique categories
+            const categories = [...new Set(allDocuments.map(doc => doc.category || '미분류'))].sort();
+
+            // Filter documents by selected category
+            const documents = selectedCategory ? allDocuments.filter(doc => (doc.category || '미분류') === selectedCategory) : allDocuments;
+            const filteredCount = documents.length;
 
             const fileCountElement = document.querySelector(`.file-count-${storeName.replace(/\//g, '-')}`);
             if (fileCountElement) {
@@ -1325,8 +1422,11 @@ async function showStoreDocuments(storeName, displayName) {
                 ? `
                     <div class="store-documents">
                         <div class="documents-header">
-                            <h4>Stored Documents (${documentCount})</h4>
-                            <button class="btn btn-danger" onclick="deleteAllDocuments('${storeName}', '${displayName}')">Delete All</button>
+                            <h4>문서 목록 (${selectedCategory ? `${filteredCount} / ${documentCount}` : documentCount})</h4>
+                            <div style="display: flex; gap: 10px;">
+                                ${selectedCategory ? `<button class="btn btn-danger" onclick="deleteDocumentsByCategory('${storeName}', '${displayName}', '${selectedCategory}')">선택된 카테고리 삭제 (${filteredCount})</button>` : ''}
+                                <button class="btn btn-danger" onclick="deleteAllDocuments('${storeName}', '${displayName}')">전체 삭제</button>
+                            </div>
                         </div>
                         <ul class="document-list">
                             ${documents.map((doc, index) => {
@@ -1341,20 +1441,24 @@ async function showStoreDocuments(storeName, displayName) {
                                 const createDate = doc.create_time ? new Date(doc.create_time).toLocaleDateString('ko-KR') : '';
 
                                 // Display name with fallback
-                                const displayName = doc.display_name || `Document ${index + 1}`;
+                                const docDisplayName = doc.display_name || `Document ${index + 1}`;
+
+                                // Category with fallback
+                                const category = doc.category || '미분류';
 
                                 return `
                                     <li class="document-item">
                                         <div class="doc-info">
-                                            <span class="doc-name" title="${doc.document_name}">${displayName}</span>
+                                            <span class="doc-name" title="${doc.document_name}">${docDisplayName}</span>
                                             <div class="doc-details">
                                                 <span class="doc-type">${fileExt}</span>
                                                 <span class="doc-size">${sizeInMB}</span>
                                                 ${createDate ? `<span class="doc-date">${createDate}</span>` : ''}
+                                                <span class="doc-category" style="background: #e9ecef; padding: 2px 8px; border-radius: 4px; font-size: 12px;">📂 ${category}</span>
                                             </div>
                                         </div>
                                         <div class="doc-actions">
-                                            <button class="btn btn-danger btn-sm" onclick="deleteDocument('${doc.document_name}', '${displayName}', '${storeName}', '${displayName}')">Delete</button>
+                                            <button class="btn btn-danger btn-sm" onclick="deleteDocument('${doc.document_name}', '${docDisplayName}', '${storeName}', '${displayName}')">삭제</button>
                                         </div>
                                     </li>
                                 `;
@@ -1362,27 +1466,40 @@ async function showStoreDocuments(storeName, displayName) {
                         </ul>
                     </div>
                 `
-                : '<p class="empty-message">No stored documents</p>';
+                : '<p class="empty-message">문서가 없습니다</p>';
 
             storesContainer.innerHTML = `
                 <div class="store-detail-view">
-                    <button class="btn btn-secondary" onclick="loadStores()">← Back</button>
+                    <button class="btn btn-secondary" onclick="loadStores()">← 뒤로</button>
                     <h3>${displayName}</h3>
+                    ${categories.length > 0 ? `
+                        <div style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 500;">📂 카테고리 필터:</label>
+                            <select id="categoryFilter" class="input-field" onchange="showStoreDocuments('${storeName}', '${displayName}', this.value)" style="width: 100%; max-width: 400px;">
+                                <option value="">전체 보기 (${documentCount})</option>
+                                ${categories.map(cat => `
+                                    <option value="${cat}" ${cat === selectedCategory ? 'selected' : ''}>
+                                        ${cat} (${allDocuments.filter(d => (d.category || '미분류') === cat).length})
+                                    </option>
+                                `).join('')}
+                            </select>
+                        </div>
+                    ` : ''}
                     ${documentListHtml}
                 </div>
             `;
 
-            showToast(`Loaded documents for ${displayName}`, 'success');
+            showToast(`${displayName} 문서 로드 완료`, 'success');
         } else {
-            showToast(`Failed to load documents: ${data.error}`, 'error');
+            showToast(`문서 로드 실패: ${data.error}`, 'error');
         }
     } catch (error) {
-        showToast(`Error: ${error.message}`, 'error');
+        showToast(`에러: ${error.message}`, 'error');
     }
 }
 
 async function deleteDocument(documentName, displayName, storeName, storeDisplayName) {
-    if (!confirm(`Delete "${displayName}" from ${storeDisplayName}?\n\nNote: This will delete the document from the FileStore, but the original file in "My Files" (if it exists) will be preserved.`)) {
+    if (!confirm(`"${displayName}"을(를) ${storeDisplayName}에서 삭제하시겠습니까?\n\n참고: 파일 저장소에서 문서가 삭제되지만, 임시 저장소의 원본 파일(있는 경우)은 보존됩니다.`)) {
         return;
     }
 
@@ -1394,7 +1511,7 @@ async function deleteDocument(documentName, displayName, storeName, storeDisplay
         const data = await response.json();
 
         if (data.success) {
-            showToast(`${displayName} deleted successfully`, 'success');
+            showToast(`${displayName} 삭제 완료`, 'success');
             // Refresh the document list for this store
             showStoreDocuments(storeName, storeDisplayName);
             // Also refresh the stores list to update counts
@@ -1403,22 +1520,22 @@ async function deleteDocument(documentName, displayName, storeName, storeDisplay
             throw new Error(data.error);
         }
     } catch (error) {
-        showToast(`Delete failed: ${error.message}`, 'error');
+        showToast(`삭제 실패: ${error.message}`, 'error');
     }
 }
 
 async function deleteAllDocuments(storeName, storeDisplayName) {
-    if (!confirm(`⚠️ WARNING: Delete ALL documents from "${storeDisplayName}"?\n\nThis will permanently delete ALL documents in this FileStore.\nThis action cannot be undone!\n\nNote: Original files in "My Files" (if they exist) will be preserved.`)) {
+    if (!confirm(`⚠️ 경고: "${storeDisplayName}"의 모든 문서를 삭제하시겠습니까?\n\n이 작업은 파일 저장소의 모든 문서를 영구적으로 삭제합니다.\n이 작업은 되돌릴 수 없습니다!\n\n참고: 임시 저장소의 원본 파일(있는 경우)은 보존됩니다.`)) {
         return;
     }
 
     // Double confirmation for safety
-    if (!confirm(`Are you absolutely sure?\n\nThis will delete ALL documents from "${storeDisplayName}".`)) {
+    if (!confirm(`정말로 확실하십니까?\n\n"${storeDisplayName}"의 모든 문서가 삭제됩니다.`)) {
         return;
     }
 
     try {
-        showToast('Deleting all documents... This may take a while.', 'info');
+        showToast('모든 문서 삭제 중... 시간이 걸릴 수 있습니다.', 'info');
 
         const response = await fetch(`/api/stores/${encodeURIComponent(storeName)}/documents`, {
             method: 'DELETE'
@@ -1427,12 +1544,12 @@ async function deleteAllDocuments(storeName, storeDisplayName) {
         const data = await response.json();
 
         if (data.success) {
-            const message = `Successfully deleted ${data.deleted_count} out of ${data.total_count} documents`;
+            const message = `${data.total_count}개 중 ${data.deleted_count}개 문서 삭제 완료`;
             showToast(message, 'success');
 
             if (data.failed_count > 0) {
                 console.error('Failed deletions:', data.errors);
-                showToast(`Warning: ${data.failed_count} documents failed to delete. Check console for details.`, 'warning');
+                showToast(`경고: ${data.failed_count}개 문서 삭제 실패. 콘솔 확인 필요.`, 'warning');
             }
 
             // Refresh the document list and stores list
@@ -1442,7 +1559,45 @@ async function deleteAllDocuments(storeName, storeDisplayName) {
             throw new Error(data.error);
         }
     } catch (error) {
-        showToast(`Delete all failed: ${error.message}`, 'error');
+        showToast(`전체 삭제 실패: ${error.message}`, 'error');
+    }
+}
+
+async function deleteDocumentsByCategory(storeName, storeDisplayName, category) {
+    if (!confirm(`⚠️ 경고: "${category}" 카테고리의 모든 문서를 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다!`)) {
+        return;
+    }
+
+    try {
+        showToast(`"${category}" 카테고리 문서 삭제 중...`, 'info');
+
+        const response = await fetch(`/api/stores/${encodeURIComponent(storeName)}/documents/delete-by-category`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ category })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            const message = `${data.deleted_count}개 문서 삭제 완료`;
+            showToast(message, 'success');
+
+            if (data.failed_count > 0) {
+                console.error('삭제 실패:', data.errors);
+                showToast(`경고: ${data.failed_count}개 문서 삭제 실패. 콘솔 확인 필요.`, 'warning');
+            }
+
+            // Refresh the document list (clear category filter)
+            showStoreDocuments(storeName, storeDisplayName);
+            setTimeout(() => loadStores(), 1000);
+        } else {
+            throw new Error(data.error);
+        }
+    } catch (error) {
+        showToast(`카테고리 삭제 실패: ${error.message}`, 'error');
     }
 }
 
@@ -1463,7 +1618,7 @@ function showToast(message, type = 'info') {
 // ============================================================================
 function changeLanguage(lang) {
     if (!translations[lang]) {
-        console.error(`Language ${lang} not found`);
+        console.error(`언어 ${lang}을(를) 찾을 수 없습니다`);
         return;
     }
 
@@ -1777,3 +1932,79 @@ handleTabChange = function(e) {
         }, 100);
     }
 };
+
+// ============================================================================
+// Active Store Configuration
+// ============================================================================
+async function loadActiveStore() {
+    try {
+        const response = await fetch('/api/config/active-stores');
+        const data = await response.json();
+
+        if (data.success && data.active_stores && data.active_stores.length > 0) {
+            const activeStoreStatus = document.getElementById('activeStoreStatus');
+            const currentActiveStores = document.getElementById('currentActiveStores');
+
+            // Check the appropriate checkboxes
+            document.querySelectorAll('.active-store-checkbox').forEach(checkbox => {
+                checkbox.checked = data.active_stores.includes(checkbox.value);
+            });
+
+            if (activeStoreStatus && currentActiveStores) {
+                const storeNames = data.active_stores.map(storeName => {
+                    const store = state.stores.find(s => s.store_name === storeName);
+                    return store ? store.display_name : storeName;
+                });
+                currentActiveStores.innerHTML = storeNames.map(name =>
+                    `<div style="padding: 4px 8px; background: #007bff; color: white; border-radius: 4px; display: inline-block; margin: 2px; font-size: 13px;">✓ ${name}</div>`
+                ).join('');
+                activeStoreStatus.style.display = 'block';
+            }
+        } else {
+            const activeStoreStatus = document.getElementById('activeStoreStatus');
+            if (activeStoreStatus) {
+                activeStoreStatus.style.display = 'none';
+            }
+            // Uncheck all checkboxes
+            document.querySelectorAll('.active-store-checkbox').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+        }
+    } catch (error) {
+        console.error('Error loading active stores:', error);
+    }
+}
+
+async function setActiveStore() {
+    const checkboxes = document.querySelectorAll('.active-store-checkbox:checked');
+    const storeNames = Array.from(checkboxes).map(cb => cb.value);
+
+    if (storeNames.length === 0) {
+        showToast('최소 하나의 파일 저장소를 선택하세요', 'warning');
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/config/active-stores', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                store_names: storeNames
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showToast(`${storeNames.length}개 활성 파일 저장소 설정 완료`, 'success');
+            loadActiveStore();
+        } else {
+            showToast(`활성 저장소 설정 실패: ${data.error}`, 'error');
+        }
+    } catch (error) {
+        console.error('Error setting active stores:', error);
+        showToast(`오류: ${error.message}`, 'error');
+    }
+}

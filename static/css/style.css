@@ -529,10 +529,12 @@ body {
 .btn-danger {
     background-color: var(--danger-color);
     color: white;
+    opacity: 0.85;
 }
 
 .btn-danger:hover {
     background-color: #dc2626;
+    opacity: 1;
 }
 
 .store-info {

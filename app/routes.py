@@ -3,8 +3,12 @@ from app.logger import get_logger
 from werkzeug.utils import secure_filename
 import os
 import tempfile
+import csv
+import json
+import sqlite3
 from app.gemini_client import GeminiClient
 from app.wayfinding import WayfindingService
+from app.db import set_config, get_config
 
 bp = Blueprint('main', __name__)
 
@@ -23,6 +27,58 @@ ALLOWED_EXTENSIONS = {'pdf', 'txt', 'doc', 'docx', 'xlsx', 'xls', 'ppt', 'pptx',
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def convert_csv_to_json(file_path, filename):
+    """
+    CSV 파일을 JSON으로 변환
+
+    Args:
+        file_path: CSV 파일 경로
+        filename: 원본 파일 이름
+
+    Returns:
+        tuple: (변환된 JSON 파일 경로, 새 파일 이름)
+    """
+    logger = get_logger()
+
+    # CSV 파일만 처리
+    if not filename.lower().endswith('.csv'):
+        return file_path, filename
+
+    try:
+        logger.info(f"Converting CSV to JSON: {filename}")
+
+        # CSV 읽기 (여러 인코딩 시도)
+        encodings = ['utf-8', 'cp949', 'euc-kr', 'latin-1']
+        data = None
+
+        for encoding in encodings:
+            try:
+                with open(file_path, 'r', encoding=encoding) as csvfile:
+                    reader = csv.DictReader(csvfile)
+                    data = list(reader)
+                logger.info(f"Successfully read CSV with {encoding} encoding")
+                break
+            except (UnicodeDecodeError, Exception) as e:
+                logger.debug(f"Failed to read with {encoding}: {str(e)}")
+                continue
+
+        if data is None:
+            logger.error(f"Failed to read CSV file with any encoding")
+            return file_path, filename
+
+        # JSON으로 변환하여 임시 파일에 저장
+        json_filename = filename.rsplit('.', 1)[0] + '.json'
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json', encoding='utf-8') as tmp_file:
+            json.dump(data, tmp_file, ensure_ascii=False, indent=2)
+            new_path = tmp_file.name
+
+        logger.info(f"Converted CSV to JSON: {json_filename} ({len(data)} rows)")
+        return new_path, json_filename
+
+    except Exception as e:
+        logger.error(f"Error converting CSV to JSON: {str(e)}", exc_info=True)
+        return file_path, filename
 
 # ==================== Index Route ====================
 
@@ -209,23 +265,33 @@ def upload_file():
             file.save(tmp.name)
             tmp_path = tmp.name
 
+        converted_path = None
         try:
-            # Gemini Files API를 통해 파일 업로드 (원본 파일명을 display_name으로 전달)
+            # CSV 파일을 JSON으로 변환
+            converted_path, converted_filename = convert_csv_to_json(tmp_path, original_filename)
+            final_path = converted_path
+            final_filename = converted_filename
+
+            # Gemini Files API를 통해 파일 업로드 (변환된 파일명을 display_name으로 전달)
             gemini = GeminiClient(current_app.config['GEMINI_API_KEY'])
-            result = gemini.upload_file(tmp_path, display_name=original_filename)
+            result = gemini.upload_file(final_path, display_name=final_filename)
 
             if result['success']:
-                logger.info(f'File upload successful - Filename: {file.filename} - File ID: {result.get("file_id")} - IP: {client_ip}')
+                logger.info(f'File upload successful - Original: {original_filename} - Uploaded as: {final_filename} - File ID: {result.get("file_id")} - IP: {client_ip}')
                 logger.debug(f'Upload result: {result} - IP: {client_ip}')
                 return jsonify(result), 201
             else:
-                logger.error(f'File upload failed - Filename: {file.filename} - Error: {result.get("error")} - IP: {client_ip}')
+                logger.error(f'File upload failed - Filename: {final_filename} - Error: {result.get("error")} - IP: {client_ip}')
                 return jsonify(result), 400
         finally:
             # 임시 파일 삭제
             if os.path.exists(tmp_path):
                 os.remove(tmp_path)
                 logger.debug(f'Temporary file deletion completed - Path: {tmp_path} - IP: {client_ip}')
+            # 변환된 파일도 삭제 (원본과 다른 경우)
+            if converted_path and converted_path != tmp_path and os.path.exists(converted_path):
+                os.remove(converted_path)
+                logger.debug(f'Converted file deletion completed - Path: {converted_path} - IP: {client_ip}')
 
     except Exception as e:
         logger.error(f'File upload exception occurred - IP: {client_ip} - Error: {str(e)}', exc_info=True)
@@ -336,6 +402,68 @@ def delete_file(file_id):
         logger.error(f'File deletion exception occurred - File ID: {file_id} - IP: {client_ip} - Error: {str(e)}', exc_info=True)
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@bp.route('/api/files/delete-all', methods=['DELETE'])
+def delete_all_files():
+    """임시 저장소의 모든 파일 삭제"""
+    logger = get_logger()
+    client_ip = request.remote_addr
+
+    try:
+        logger.info(f'Delete all files request - IP: {client_ip}')
+
+        gemini = GeminiClient(current_app.config['GEMINI_API_KEY'])
+
+        # 모든 파일 목록 조회
+        files_result = gemini.list_files()
+
+        if not files_result['success']:
+            return jsonify({'success': False, 'error': 'Failed to list files'}), 400
+
+        files = files_result.get('files', [])
+        total_count = len(files)
+
+        if total_count == 0:
+            logger.info(f'No files to delete - IP: {client_ip}')
+            return jsonify({
+                'success': True,
+                'message': 'No files to delete',
+                'deleted_count': 0,
+                'total_count': 0
+            }), 200
+
+        # 파일 삭제
+        deleted_count = 0
+        failed_count = 0
+        errors = []
+
+        for file in files:
+            file_id = file.get('file_id')
+            try:
+                result = gemini.delete_file(file_id)
+                if result['success']:
+                    deleted_count += 1
+                else:
+                    failed_count += 1
+                    errors.append(f"Failed to delete {file_id}: {result.get('error')}")
+            except Exception as e:
+                failed_count += 1
+                errors.append(f"Error deleting {file_id}: {str(e)}")
+
+        logger.info(f'Delete all files completed - Deleted: {deleted_count}/{total_count} - IP: {client_ip}')
+
+        return jsonify({
+            'success': True,
+            'message': f'Deleted {deleted_count} files',
+            'deleted_count': deleted_count,
+            'failed_count': failed_count,
+            'total_count': total_count,
+            'errors': errors
+        }), 200
+
+    except Exception as e:
+        logger.error(f'Delete all files exception - IP: {client_ip} - Error: {str(e)}', exc_info=True)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @bp.route('/api/documents/<path:document_name>', methods=['DELETE'])
 def delete_document(document_name):
     """FileSearchStore 내부 문서 삭제 (REST API)"""
@@ -382,11 +510,80 @@ def delete_all_documents(store_name):
         logger.error(f'Delete all documents exception occurred - Store: {store_name} - IP: {client_ip} - Error: {str(e)}', exc_info=True)
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@bp.route('/api/stores/<path:store_name>/documents/delete-by-category', methods=['POST'])
+def delete_documents_by_category(store_name):
+    """카테고리별로 문서 삭제"""
+    logger = get_logger()
+    client_ip = request.remote_addr
+
+    try:
+        data = request.get_json()
+        category = data.get('category', '').strip()
+
+        if not category:
+            logger.warning(f'Category is missing - Store: {store_name} - IP: {client_ip}')
+            return jsonify({'success': False, 'error': 'Category is required'}), 400
+
+        logger.info(f'Delete documents by category request - Store: {store_name} - Category: {category} - IP: {client_ip}')
+
+        # 해당 카테고리의 문서들 조회
+        from app.db import get_all_mappings
+        conn = sqlite3.connect('data/document_mappings.db')
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT document_name FROM document_mappings
+            WHERE store_name = ? AND category = ?
+        ''', (store_name, category))
+        documents = cursor.fetchall()
+        conn.close()
+
+        if not documents:
+            logger.info(f'No documents found for category - Store: {store_name} - Category: {category} - IP: {client_ip}')
+            return jsonify({
+                'success': True,
+                'message': f'No documents found in category: {category}',
+                'deleted_count': 0,
+                'total_count': 0
+            }), 200
+
+        # 문서 삭제
+        gemini = GeminiClient(current_app.config['GEMINI_API_KEY'])
+        deleted_count = 0
+        failed_count = 0
+        errors = []
+
+        for (doc_name,) in documents:
+            try:
+                result = gemini.delete_document_from_store(doc_name)
+                if result['success']:
+                    deleted_count += 1
+                else:
+                    failed_count += 1
+                    errors.append(f"Failed to delete {doc_name}: {result.get('error')}")
+            except Exception as e:
+                failed_count += 1
+                errors.append(f"Error deleting {doc_name}: {str(e)}")
+
+        logger.info(f'Delete by category completed - Store: {store_name} - Category: {category} - Deleted: {deleted_count}/{len(documents)} - IP: {client_ip}')
+
+        return jsonify({
+            'success': True,
+            'message': f'Deleted {deleted_count} documents from category: {category}',
+            'deleted_count': deleted_count,
+            'failed_count': failed_count,
+            'total_count': len(documents),
+            'errors': errors
+        }), 200
+
+    except Exception as e:
+        logger.error(f'Delete by category exception - Store: {store_name} - IP: {client_ip} - Error: {str(e)}', exc_info=True)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 # ==================== Search ====================
 
 @bp.route('/api/search', methods=['POST'])
 def search():
-    """FileSearch로 검색"""
+    """FileSearch로 검색 (활성 스토어 사용)"""
     logger = get_logger()
     client_ip = request.remote_addr
 
@@ -395,7 +592,6 @@ def search():
 
         data = request.get_json()
         query = data.get('query', '').strip()
-        store_ids = data.get('store_ids', [])
         metadata_filter = data.get('metadata_filter', None)
         history = data.get('history', [])
 
@@ -403,15 +599,23 @@ def search():
             logger.warning(f'Search query is missing - IP: {client_ip}')
             return jsonify({'success': False, 'error': 'Query is required'}), 400
 
+        # Get active stores from config (supports multiple stores)
+        active_stores_json = get_config('active_stores')
+        if active_stores_json:
+            try:
+                store_ids = json.loads(active_stores_json)
+            except json.JSONDecodeError:
+                store_ids = []
+        else:
+            # Fallback to single active store for backward compatibility
+            active_store = get_config('active_store_name')
+            store_ids = [active_store] if active_store else []
+
         if not store_ids:
-            logger.warning(f'Store ID is missing - IP: {client_ip}')
-            return jsonify({'success': False, 'error': 'store_ids is required'}), 400
+            logger.warning(f'No active stores configured - IP: {client_ip}')
+            return jsonify({'success': False, 'error': 'No active FileStores configured. Please contact administrator.'}), 400
 
-        if not isinstance(store_ids, list):
-            logger.warning(f'Invalid store_ids format - IP: {client_ip}')
-            return jsonify({'success': False, 'error': 'store_ids must be an array'}), 400
-
-        logger.debug(f'Search started - Query: {query} - Stores: {store_ids} - History: {len(history)} messages - IP: {client_ip}')
+        logger.debug(f'Search started - Query: {query} - Active Stores: {store_ids} - History: {len(history)} messages - IP: {client_ip}')
 
         gemini = GeminiClient(current_app.config['GEMINI_API_KEY'])
         result = gemini.search_with_file_search(query, store_ids, metadata_filter, history=history)
@@ -486,6 +690,7 @@ def upload_to_store():
 
         file = request.files['file']
         store_name = request.form.get('store_name', '').strip()
+        category = request.form.get('category', '').strip() or None
 
         if not file or not store_name:
             logger.warning(f'File or store name is missing - IP: {client_ip}')
@@ -500,27 +705,43 @@ def upload_to_store():
             file.save(tmp_file.name)
             tmp_file_path = tmp_file.name
 
+        converted_path = None
         try:
-            logger.debug(f'FileStore upload attempt - File: {file.filename} - Store: {store_name} - IP: {client_ip}')
+            # CSV 파일을 JSON으로 변환 (직접 업로드 시에도 변환 적용)
+            converted_path, converted_filename = convert_csv_to_json(tmp_file_path, file.filename)
+            final_file_path = converted_path
+            final_filename = converted_filename
+
+            logger.debug(f'FileStore upload attempt - File: {final_filename} - Store: {store_name} - Category: {category} - IP: {client_ip}')
 
             gemini = GeminiClient(current_app.config['GEMINI_API_KEY'])
             result = gemini.upload_and_import_to_store(
-                file_path=tmp_file_path,
+                file_path=final_file_path,
                 store_name=store_name,
-                display_name=file.filename
+                display_name=final_filename,
+                category=category
             )
 
             if result['success']:
-                logger.info(f'FileStore upload successful - File: {file.filename} - Store: {store_name} - IP: {client_ip}')
+                logger.info(f'FileStore upload successful - Original: {file.filename} - Final: {final_filename} - Store: {store_name} - Category: {category} - IP: {client_ip}')
                 return jsonify(result), 201
             else:
-                logger.error(f'FileStore upload failed - File: {file.filename} - Error: {result.get("error")} - IP: {client_ip}')
-                return jsonify(result), 400
+                error_msg = result.get("error", "Unknown error")
+                logger.error(f'FileStore upload failed - Original: {file.filename} - Final: {final_filename} - Error: {error_msg} - IP: {client_ip}')
+                return jsonify({
+                    'success': False,
+                    'error': error_msg,
+                    'original_file': file.filename,
+                    'converted_file': final_filename
+                }), 400
 
         finally:
             # 임시 파일 삭제
             if os.path.exists(tmp_file_path):
                 os.remove(tmp_file_path)
+            # 변환된 파일도 삭제 (원본과 다른 경우)
+            if converted_path and converted_path != tmp_file_path and os.path.exists(converted_path):
+                os.remove(converted_path)
 
     except Exception as e:
         logger.error(f'FileStore upload exception occurred - IP: {client_ip} - Error: {str(e)}', exc_info=True)
@@ -541,22 +762,24 @@ def import_file_to_store():
         file_id = data.get('file_id', '').strip()
         store_name = data.get('store_name', '').strip()
         original_filename = data.get('original_filename', '').strip()
+        category = data.get('category', '').strip() or None
 
         if not file_id or not store_name:
             logger.warning(f'File ID or store name is missing - IP: {client_ip}')
             return jsonify({'success': False, 'error': 'File ID and store name are required'}), 400
 
-        logger.debug(f'File import attempt - File: {file_id} - Store: {store_name} - Filename: {original_filename} - IP: {client_ip}')
+        logger.debug(f'File import attempt - File: {file_id} - Store: {store_name} - Filename: {original_filename} - Category: {category} - IP: {client_ip}')
 
         gemini = GeminiClient(current_app.config['GEMINI_API_KEY'])
         result = gemini.import_file_to_store(
             file_id=file_id,
             store_name=store_name,
-            original_filename=original_filename
+            original_filename=original_filename,
+            category=category
         )
 
         if result['success']:
-            logger.info(f'File import successful - File: {file_id} - Store: {store_name} - IP: {client_ip}')
+            logger.info(f'File import successful - File: {file_id} - Store: {store_name} - Category: {category} - IP: {client_ip}')
             return jsonify(result), 201
         else:
             logger.error(f'File import failed - File: {file_id} - Error: {result.get("error")} - IP: {client_ip}')
@@ -564,6 +787,150 @@ def import_file_to_store():
 
     except Exception as e:
         logger.error(f'File import exception occurred - IP: {client_ip} - Error: {str(e)}', exc_info=True)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# ==================== Config Management ====================
+
+@bp.route('/api/config/active-store', methods=['GET'])
+def get_active_store():
+    """활성 FileStore 조회"""
+    logger = get_logger()
+    client_ip = request.remote_addr
+
+    try:
+        logger.info(f'Get active store request - IP: {client_ip}')
+
+        active_store = get_config('active_store_name')
+
+        logger.info(f'Active store retrieved: {active_store} - IP: {client_ip}')
+        return jsonify({
+            'success': True,
+            'active_store_name': active_store
+        }), 200
+
+    except Exception as e:
+        logger.error(f'Get active store exception - IP: {client_ip} - Error: {str(e)}', exc_info=True)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@bp.route('/api/config/active-store', methods=['POST'])
+def set_active_store():
+    """활성 FileStore 설정"""
+    logger = get_logger()
+    client_ip = request.remote_addr
+
+    try:
+        logger.info(f'Set active store request - IP: {client_ip}')
+
+        data = request.get_json()
+        store_name = data.get('store_name', '').strip()
+
+        if not store_name:
+            logger.warning(f'Store name is missing - IP: {client_ip}')
+            return jsonify({'success': False, 'error': 'Store name is required'}), 400
+
+        # Store name 유효성 검증 (실제 존재하는지)
+        gemini = GeminiClient(current_app.config['GEMINI_API_KEY'])
+        store_info = gemini.get_file_search_store(store_name)
+
+        if not store_info.get('success'):
+            logger.warning(f'Invalid store name - Store: {store_name} - IP: {client_ip}')
+            return jsonify({'success': False, 'error': 'Invalid FileStore name'}), 400
+
+        # Config에 저장
+        if set_config('active_store_name', store_name):
+            logger.info(f'Active store set successfully - Store: {store_name} - IP: {client_ip}')
+            return jsonify({
+                'success': True,
+                'active_store_name': store_name,
+                'message': 'Active FileStore set successfully'
+            }), 200
+        else:
+            logger.error(f'Failed to set active store - Store: {store_name} - IP: {client_ip}')
+            return jsonify({'success': False, 'error': 'Failed to save configuration'}), 500
+
+    except Exception as e:
+        logger.error(f'Set active store exception - IP: {client_ip} - Error: {str(e)}', exc_info=True)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@bp.route('/api/config/active-stores', methods=['GET'])
+def get_active_stores():
+    """활성 FileStore 목록 조회 (다중 선택)"""
+    logger = get_logger()
+    client_ip = request.remote_addr
+
+    try:
+        logger.info(f'Get active stores request - IP: {client_ip}')
+
+        # JSON으로 저장된 다중 active stores 조회
+        active_stores_json = get_config('active_stores')
+        if active_stores_json:
+            try:
+                active_stores = json.loads(active_stores_json)
+            except json.JSONDecodeError:
+                # JSON 파싱 실패 시 빈 리스트
+                active_stores = []
+        else:
+            # 새 설정이 없으면 기존 단일 active_store_name을 사용
+            active_store = get_config('active_store_name')
+            active_stores = [active_store] if active_store else []
+
+        logger.info(f'Active stores retrieved: {active_stores} - IP: {client_ip}')
+        return jsonify({
+            'success': True,
+            'active_stores': active_stores
+        }), 200
+
+    except Exception as e:
+        logger.error(f'Get active stores exception - IP: {client_ip} - Error: {str(e)}', exc_info=True)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@bp.route('/api/config/active-stores', methods=['POST'])
+def set_active_stores():
+    """활성 FileStore 목록 설정 (다중 선택)"""
+    logger = get_logger()
+    client_ip = request.remote_addr
+
+    try:
+        logger.info(f'Set active stores request - IP: {client_ip}')
+
+        data = request.get_json()
+        store_names = data.get('store_names', [])
+
+        if not store_names or not isinstance(store_names, list):
+            logger.warning(f'Store names missing or invalid - IP: {client_ip}')
+            return jsonify({'success': False, 'error': 'Store names array is required'}), 400
+
+        if len(store_names) == 0:
+            logger.warning(f'Empty store names list - IP: {client_ip}')
+            return jsonify({'success': False, 'error': 'At least one store must be selected'}), 400
+
+        # Store names 유효성 검증
+        gemini = GeminiClient(current_app.config['GEMINI_API_KEY'])
+        invalid_stores = []
+        for store_name in store_names:
+            store_info = gemini.get_file_search_store(store_name)
+            if not store_info.get('success'):
+                invalid_stores.append(store_name)
+
+        if invalid_stores:
+            logger.warning(f'Invalid store names: {invalid_stores} - IP: {client_ip}')
+            return jsonify({'success': False, 'error': f'Invalid FileStore names: {", ".join(invalid_stores)}'}), 400
+
+        # Config에 JSON으로 저장
+        active_stores_json = json.dumps(store_names)
+        if set_config('active_stores', active_stores_json):
+            logger.info(f'Active stores set successfully - Stores: {store_names} - IP: {client_ip}')
+            return jsonify({
+                'success': True,
+                'active_stores': store_names,
+                'message': f'Active FileStores set successfully ({len(store_names)} stores)'
+            }), 200
+        else:
+            logger.error(f'Failed to set active stores - Stores: {store_names} - IP: {client_ip}')
+            return jsonify({'success': False, 'error': 'Failed to save configuration'}), 500
+
+    except Exception as e:
+        logger.error(f'Set active stores exception - IP: {client_ip} - Error: {str(e)}', exc_info=True)
         return jsonify({'success': False, 'error': str(e)}), 500
 
 # ==================== Wayfinding (길찾기) Routes ====================

@@ -185,13 +185,27 @@ class GeminiClient:
 
             document_list = []
             for idx, doc in enumerate(documents):
-                # Try to get original filename from mapping
+                # Try to get original filename and category from mapping
+                from app.db import get_document_category
+
+                self.logger.debug(f"Document {idx}: name={doc.name}")
+                self.logger.debug(f"Document {idx}: has display_name={hasattr(doc, 'display_name')}")
+                if hasattr(doc, 'display_name'):
+                    self.logger.debug(f"Document {idx}: display_name={doc.display_name}")
+
                 original_filename = get_mapping(doc.name)
+                self.logger.debug(f"Document {idx}: get_mapping returned={original_filename}")
+
+                category = get_document_category(doc.name)
+                self.logger.debug(f"Document {idx}: get_document_category returned={category}")
+
                 display_name = original_filename if original_filename else (doc.display_name if hasattr(doc, 'display_name') else None)
+                self.logger.debug(f"Document {idx}: final display_name={display_name}")
 
                 doc_info = {
                     "document_name": doc.name,
                     "display_name": display_name,
+                    "category": category,
                     "mime_type": doc.mime_type if hasattr(doc, 'mime_type') else None,
                     "create_time": doc.create_time if hasattr(doc, 'create_time') else None,
                     "update_time": doc.update_time if hasattr(doc, 'update_time') else None,
@@ -366,7 +380,7 @@ class GeminiClient:
                 "error": str(e)
             }
 
-    def import_file_to_store(self, file_id: str, store_name: str, original_filename: Optional[str] = None) -> Dict[str, Any]:
+    def import_file_to_store(self, file_id: str, store_name: str, original_filename: Optional[str] = None, category: Optional[str] = None) -> Dict[str, Any]:
         """
         Import a file from Files API to a FileSearchStore
 
@@ -374,32 +388,47 @@ class GeminiClient:
             file_id: ID of the file to import (from Files API)
             store_name: Name of the target FileSearchStore
             original_filename: Original filename to save in mapping
+            category: Optional category/classification of the document
 
         Returns:
             Dict with success status
         """
         try:
-            self.logger.info(f"Importing file {file_id} to store {store_name}")
+            self.logger.info(f"Importing file {file_id} to store {store_name} with category {category}")
+            self.logger.info(f"Original filename: {original_filename}")
 
             result = self.client.file_search_stores.import_file(
                 file_search_store_name=store_name,
                 file_name=file_id
             )
 
-            self.logger.info(f"File imported successfully to store {store_name}: {result}")
+            self.logger.info(f"File imported successfully to store {store_name}")
+            self.logger.info(f"Result type: {type(result)}")
+            self.logger.info(f"Result has 'name' attribute: {hasattr(result, 'name')}")
+            if hasattr(result, 'name'):
+                self.logger.info(f"Result.name: {result.name}")
 
             # Extract document_name from operation.name
             # operation.name format: fileSearchStores/{store_id}/operations/{file_id}-{random_id}
             # document_name format: fileSearchStores/{store_id}/documents/{file_id}-{random_id}
-            if hasattr(result, 'name') and result.name and original_filename:
+            if hasattr(result, 'name') and result.name:
                 document_name = result.name.replace('/operations/', '/documents/')
-                save_mapping(document_name, original_filename, file_id, store_name)
-                self.logger.info(f"Saved mapping: {document_name} -> {original_filename}")
+                self.logger.info(f"Document name: {document_name}")
+
+                if original_filename:
+                    self.logger.info(f"Saving mapping: {document_name} -> {original_filename} (category: {category})")
+                    mapping_result = save_mapping(document_name, original_filename, file_id, store_name, category)
+                    self.logger.info(f"Mapping saved: {mapping_result}")
+                else:
+                    self.logger.warning(f"No original filename provided, skipping mapping save")
+            else:
+                self.logger.warning(f"Result does not have 'name' attribute or name is empty")
 
             return {
                 "success": True,
                 "file_id": file_id,
                 "store_name": store_name,
+                "category": category,
                 "message": "File imported successfully"
             }
         except Exception as e:
@@ -409,7 +438,7 @@ class GeminiClient:
                 "error": str(e)
             }
 
-    def upload_and_import_to_store(self, file_path: str, store_name: str, display_name: Optional[str] = None) -> Dict[str, Any]:
+    def upload_and_import_to_store(self, file_path: str, store_name: str, display_name: Optional[str] = None, category: Optional[str] = None) -> Dict[str, Any]:
         """
         Upload a file and directly import it to a FileSearchStore
 
@@ -417,6 +446,7 @@ class GeminiClient:
             file_path: Path to the file to upload
             store_name: Name of the target FileSearchStore (format: fileSearchStores/{id})
             display_name: Optional display name for the file
+            category: Optional category/classification of the document
 
         Returns:
             Dict with success status and file information
@@ -430,21 +460,34 @@ class GeminiClient:
                     "error": f"File not found: {file_path}"
                 }
 
-            self.logger.info(f"Uploading and importing file {file_path} to store {store_name}")
+            final_display_name = display_name or os.path.basename(file_path)
+            self.logger.info(f"Uploading and importing file {file_path} to store {store_name} with category {category}")
 
-            # Use SDK to upload file directly to FileSearchStore
-            uploaded_file = self.client.file_search_stores.documents.upload_to_file_search_store(
-                file=file_path,
-                store_id=store_name,
-                display_name=display_name or os.path.basename(file_path)
+            # Step 1: Upload file to Files API
+            upload_result = self.upload_file(file_path, final_display_name)
+            if not upload_result['success']:
+                return upload_result
+
+            file_id = upload_result['file_id']
+
+            # Step 2: Import to FileSearchStore
+            import_result = self.import_file_to_store(
+                file_id=file_id,
+                store_name=store_name,
+                original_filename=final_display_name,
+                category=category
             )
+
+            if not import_result['success']:
+                return import_result
 
             self.logger.info(f"File uploaded and imported successfully to store {store_name}")
             return {
                 "success": True,
                 "store_name": store_name,
                 "file_path": file_path,
-                "document_name": uploaded_file.name if hasattr(uploaded_file, 'name') else None,
+                "file_id": file_id,
+                "category": category,
                 "message": "File uploaded and imported successfully"
             }
         except Exception as e:

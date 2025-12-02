@@ -24,7 +24,17 @@ def init_db():
                 original_filename TEXT NOT NULL,
                 file_id TEXT,
                 store_name TEXT,
+                category TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+
+        # Create config table for storing application settings
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS config (
+                key TEXT PRIMARY KEY,
+                value TEXT NOT NULL,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
 
@@ -35,7 +45,7 @@ def init_db():
         logger.error(f"Error initializing database: {str(e)}", exc_info=True)
         raise
 
-def save_mapping(document_name: str, original_filename: str, file_id: Optional[str] = None, store_name: Optional[str] = None) -> bool:
+def save_mapping(document_name: str, original_filename: str, file_id: Optional[str] = None, store_name: Optional[str] = None, category: Optional[str] = None) -> bool:
     """
     Save document name to original filename mapping
 
@@ -44,6 +54,7 @@ def save_mapping(document_name: str, original_filename: str, file_id: Optional[s
         original_filename: Original file name
         file_id: Optional file ID from Files API
         store_name: Optional store name
+        category: Optional category/classification of the document
 
     Returns:
         True if successful, False otherwise
@@ -54,13 +65,13 @@ def save_mapping(document_name: str, original_filename: str, file_id: Optional[s
 
         cursor.execute('''
             INSERT OR REPLACE INTO document_mappings
-            (document_name, original_filename, file_id, store_name)
-            VALUES (?, ?, ?, ?)
-        ''', (document_name, original_filename, file_id, store_name))
+            (document_name, original_filename, file_id, store_name, category)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (document_name, original_filename, file_id, store_name, category))
 
         conn.commit()
         conn.close()
-        logger.info(f"Saved mapping: {document_name} -> {original_filename}")
+        logger.info(f"Saved mapping: {document_name} -> {original_filename} (category: {category})")
         return True
     except Exception as e:
         logger.error(f"Error saving mapping: {str(e)}", exc_info=True)
@@ -141,6 +152,84 @@ def get_all_mappings() -> Dict[str, str]:
     except Exception as e:
         logger.error(f"Error getting all mappings: {str(e)}", exc_info=True)
         return {}
+
+def set_config(key: str, value: str) -> bool:
+    """
+    Set a configuration value
+
+    Args:
+        key: Configuration key
+        value: Configuration value
+
+    Returns:
+        True if successful, False otherwise
+    """
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+
+        cursor.execute('''
+            INSERT OR REPLACE INTO config (key, value, updated_at)
+            VALUES (?, ?, CURRENT_TIMESTAMP)
+        ''', (key, value))
+
+        conn.commit()
+        conn.close()
+        logger.info(f"Config set: {key} = {value}")
+        return True
+    except Exception as e:
+        logger.error(f"Error setting config: {str(e)}", exc_info=True)
+        return False
+
+def get_config(key: str) -> Optional[str]:
+    """
+    Get a configuration value
+
+    Args:
+        key: Configuration key
+
+    Returns:
+        Configuration value if found, None otherwise
+    """
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+
+        cursor.execute('SELECT value FROM config WHERE key = ?', (key,))
+        result = cursor.fetchone()
+        conn.close()
+
+        if result:
+            return result[0]
+        return None
+    except Exception as e:
+        logger.error(f"Error getting config: {str(e)}", exc_info=True)
+        return None
+
+def get_document_category(document_name: str) -> Optional[str]:
+    """
+    Get category for a document
+
+    Args:
+        document_name: Full document name
+
+    Returns:
+        Category if found, None otherwise
+    """
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+
+        cursor.execute('SELECT category FROM document_mappings WHERE document_name = ?', (document_name,))
+        result = cursor.fetchone()
+        conn.close()
+
+        if result:
+            return result[0]
+        return None
+    except Exception as e:
+        logger.error(f"Error getting document category: {str(e)}", exc_info=True)
+        return None
 
 # Initialize database on module import
 init_db()

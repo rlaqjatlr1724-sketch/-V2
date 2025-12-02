@@ -1,0 +1,209 @@
+[33mcommit f08b8993a26f3f472518d2e12eac2b29eac0bdd4[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m
+Author: rlaqjatlr1724-sketch <rlaqjatlr1724@gmail.com>
+Date:   Tue Dec 2 01:23:48 2025 +0900
+
+     fileSearchStores.import_file 메서드의 요청 본문에는 fileName과 customMetadata, chunkingConfig만 포함되며, displayName 필드는 없습니다.
+    따라서 import_file 단계에서는 Document에 새로운 표시 이름을 할당할 수 없다.
+    
+      1. SQLite DB (data/document_mappings.db)를 만들어서 FileStore의 document_name → 원본 파일명 매핑 저장
+      2. Import 시 매핑 저장, Document 조회 시 DB에서 원본 파일명 가져와서 표시, 삭제 시 매핑도 함께 삭제
+
+[33mcommit 05938d75e42facd682117e36d1d3a29f0ffafc5d[m
+Author: rlaqjatlr1724-sketch <rlaqjatlr1724@gmail.com>
+Date:   Tue Dec 2 01:22:54 2025 +0900
+
+    지도기능 추가
+    프론트엔드 업데이트
+
+[33mcommit 24c8982b4a06a18e0999d00e745f1ea8b79ebab3[m
+Author: rlaqjatlr1724-sketch <rlaqjatlr1724@gmail.com>
+Date:   Sun Nov 30 17:42:04 2025 +0900
+
+    지도기능 추가
+    프론트엔드 업데이트
+
+[33mcommit 018b1d725fe987749bbf8b48586b6e9c832f36f2[m
+Author: rlaqjatlr1724-sketch <rlaqjatlr1724@gmail.com>
+Date:   Sun Nov 30 17:28:22 2025 +0900
+
+    지도기능 추가
+    프론트엔드 업데이트
+
+[33mcommit b28e75882569ee5544ed9b5ee66f35e5112b296c[m
+Author: rlaqjatlr1724-sketch <rlaqjatlr1724@gmail.com>
+Date:   Sun Nov 30 16:43:40 2025 +0900
+
+    지도기능 추가
+    프론트엔드 업데이트
+
+[33mcommit 32128f6d6c7b81e09af318c3a12d25bdf27fb560[m
+Author: rlaqjatlr1724-sketch <rlaqjatlr1724@gmail.com>
+Date:   Sun Nov 30 14:18:16 2025 +0900
+
+    파일스토어 기반 올림픽공원 챗봇제작 V2
+
+[33mcommit f82146e03c44e7f526c4056385af4d9532a79791[m
+Author: rlaqjatlr1724-sketch <rlaqjatlr1724@gmail.com>
+Date:   Sun Nov 30 14:15:34 2025 +0900
+
+    지도기능 추가
+    프론트엔드 업데이트
+
+[33mcommit 961e94cc9fa68c7fb4baf67913f7777ccf5305af[m
+Author: Jaemin Cha <dr.jaemin.cha@gmail.com>
+Date:   Tue Nov 11 08:53:43 2025 +0900
+
+    feat: 모든 README 파일에 언어 선택 섹션 추가
+
+[33mcommit 23a69788308355f9c3c455d0be634842c2c6efd6[m
+Author: Jaemin Cha <dr.jaemin.cha@gmail.com>
+Date:   Tue Nov 11 08:49:06 2025 +0900
+
+    feat: README 파일에 스크린샷 추가 및 이미지 파일 추가
+
+[33mcommit 76dc33a1378fc570ce1a42da3682aaf595b15a15[m
+Author: Jaemin Cha <dr.jaemin.cha@gmail.com>
+Date:   Tue Nov 11 08:44:55 2025 +0900
+
+    fix: 검색 결과를 위한 파일 저장소 선택 UI 간소화
+
+[33mcommit a26f76665379944422e78ac0f38a5e51306857c0[m
+Author: Jaemin Cha <dr.jaemin.cha@gmail.com>
+Date:   Tue Nov 11 07:15:10 2025 +0900
+
+    fix: 한국어에서 영어로 주석 및 텍스트 변경
+
+[33mcommit 32f35a6f2a0be194e3a6f92908edd137ab472655[m
+Author: Jaemin Cha <dr.jaemin.cha@gmail.com>
+Date:   Tue Nov 11 07:08:21 2025 +0900
+
+    feat: README 파일 추가 및 기능 설명 업데이트
+
+[33mcommit fef4afd2621e0973d2a36235ad3e7a3b8af2628b[m
+Author: Jaemin Cha <dr.jaemin.cha@gmail.com>
+Date:   Tue Nov 11 07:05:03 2025 +0900
+
+    fix: genai.Client 초기화 및 검색 도구 구성 수정
+
+[33mcommit df610fc23c2b8fa5581f19a400df1f8e60a39c1c[m
+Author: Jaemin Cha <dr.jaemin.cha@gmail.com>
+Date:   Tue Nov 11 06:54:29 2025 +0900
+
+    fix: 로그 메시지를 한국어에서 영어로 변경
+
+[33mcommit c59de7393a34cabea3cad5f409070c0b815a222a[m
+Author: Jaemin Cha <dr.jaemin.cha@gmail.com>
+Date:   Tue Nov 11 00:38:40 2025 +0900
+
+    fix: 로그 메시지를 한국어에서 영어로 변경
+
+[33mcommit dffb10a754b74ba71b9b7bd7bb24e0a15ba61fc4[m
+Author: Jaemin Cha <dr.jaemin.cha@gmail.com>
+Date:   Tue Nov 11 00:29:18 2025 +0900
+
+    fix: 파일 검색 스토어 문서 개수 표시 수정 및 UI 텍스트 변경
+
+[33mcommit 0163926fce8305b69eebb3ce33d10edcb8b02864[m
+Author: Jaemin Cha <dr.jaemin.cha@gmail.com>
+Date:   Tue Nov 11 00:24:28 2025 +0900
+
+    feat: FileSearchStore에서 문서 통계 정보 추가 및 UI 업데이트
+
+[33mcommit f992d8e11d28137c6699db30242a098b1b69e843[m
+Author: Jaemin Cha <dr.jaemin.cha@gmail.com>
+Date:   Tue Nov 11 00:12:48 2025 +0900
+
+    feat: FileSearchStore 문서 목록 조회 기능 추가 및 스타일 개선
+
+[33mcommit 87aada85fee42e1ab5dae2a3149d1c62d0482b93[m
+Author: Jaemin Cha <dr.jaemin.cha@gmail.com>
+Date:   Tue Nov 11 00:05:06 2025 +0900
+
+    fix: FileSearch API 모델 버전 업데이트 및 도구 구성 수정
+
+[33mcommit 063c4b5de5b10079700bcae48aa39324563bb414[m
+Author: Jaemin Cha <dr.jaemin.cha@gmail.com>
+Date:   Mon Nov 10 23:50:58 2025 +0900
+
+    feat: FileStore 직접 업로드 및 파일 옮기기 기능 추가
+
+[33mcommit 54884b6fe3f01fe5c7ec0d3c3f3c15c9cca876d0[m
+Author: Jaemin Cha <dr.jaemin.cha@gmail.com>
+Date:   Mon Nov 10 23:41:15 2025 +0900
+
+    fix: 스토어 렌더링에서 파일 개수 및 ID 속성 수정
+
+[33mcommit f13f79177530f677d47bd96e854fa551dfa70aa8[m
+Author: Jaemin Cha <dr.jaemin.cha@gmail.com>
+Date:   Mon Nov 10 23:35:24 2025 +0900
+
+    fix: FileSearchStore 생성 시 display_name 인자 형식 수정
+
+[33mcommit b2154ada5e4394faa41b88fc8070f48f8b1b83ed[m
+Author: Jaemin Cha <dr.jaemin.cha@gmail.com>
+Date:   Mon Nov 10 23:31:51 2025 +0900
+
+    refactor: 파일 미리보기 라우트 주석 정리
+
+[33mcommit 4655f5ba161c67d4cae45571cd7c5bc9d99e671a[m
+Author: Jaemin Cha <dr.jaemin.cha@gmail.com>
+Date:   Mon Nov 10 23:21:32 2025 +0900
+
+    feat: 파일 미리보기 기능 추가
+
+[33mcommit de610f02fca85e479b5e4fceb3edeafbbafaf638[m
+Author: Jaemin Cha <dr.jaemin.cha@gmail.com>
+Date:   Mon Nov 10 23:08:48 2025 +0900
+
+    fix: 파일 목록 렌더링에서 파일 속성 수정
+
+[33mcommit bcbd6000a8d8aec2ca517ba31b7332835d6e502b[m
+Author: Jaemin Cha <dr.jaemin.cha@gmail.com>
+Date:   Mon Nov 10 23:02:30 2025 +0900
+
+    fix: 파일 업로드 응답에서 file_id 속성 수정
+
+[33mcommit e50e4f9dc0e2f195155125e8bc7eb5b304da2051[m
+Author: Jaemin Cha <dr.jaemin.cha@gmail.com>
+Date:   Mon Nov 10 23:00:23 2025 +0900
+
+    Enhance logging, file management, and store functionality
+    
+    - Improved logger configuration to prevent duplicate handlers and avoid propagation to parent loggers.
+    - Refactored routes to include detailed logging for store creation, listing, retrieval, and deletion.
+    - Added new API endpoints for managing FileSearchStores and importing files into stores.
+    - Updated file upload process to automatically import files into the default store if available.
+    - Enhanced error handling and logging for various operations.
+    - Updated front-end JavaScript to manage FileSearchStores, including creation and deletion functionalities.
+    - Improved UI with new styles for store management and search results.
+    - Updated dependencies in requirements.txt for better compatibility and performance.
+
+[33mcommit dbcc67fe785dab523ecbbae2a72996b34d071839[m
+Author: Jaemin Cha <dr.jaemin.cha@gmail.com>
+Date:   Mon Nov 10 21:33:50 2025 +0900
+
+    feat: 로깅 기능 추가 및 인덱스 페이지 요청 로깅 구현
+
+[33mcommit b3b6a0f683854a22169fe7a3ccd841267ec9064c[m
+Author: Jaemin Cha <dr.jaemin.cha@gmail.com>
+Date:   Mon Nov 10 21:27:11 2025 +0900
+
+    feat: 설정: 루트 디렉토리 경로 및 템플릿, 정적 폴더 설정 추가
+
+[33mcommit 9fef78d3726cfaffde34a57f7601c1556e79861e[m
+Author: Jaemin Cha <dr.jaemin.cha@gmail.com>
+Date:   Mon Nov 10 21:18:51 2025 +0900
+
+    feat: Update application entry point and dependencies
+
+[33mcommit 549840d9693ce0cb6604cc0050067fa82f5ccc42[m
+Author: Jaemin Cha <dr.jaemin.cha@gmail.com>
+Date:   Mon Nov 10 21:15:29 2025 +0900
+
+    feat: Implement file upload, management, and search functionality
+    
+    - Added routes for file upload, listing, retrieval, deletion, and chat-based search.
+    - Created a new Flask application structure with main routes in `app/routes.py`.
+    - Introduced a `GeminiClient` for interacting with the Gemini API.
+    - Developed a user interface in `templates/index.html` for file operations.
+    - Implemented file upload progre
